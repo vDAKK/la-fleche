@@ -464,7 +464,11 @@ const Game = () => {
         </div>
 
         {/* Players Scores */}
-        <ScrollArea className="h-[40vh] sm:h-[45vh] overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 bg-background/50 p-2">
+        <ScrollArea className={`overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 bg-background/50 p-2 ${
+          gameMode === "cricket" 
+            ? "max-h-[40vh] sm:max-h-[45vh]" 
+            : "max-h-[25vh] sm:max-h-[30vh]"
+        }`}>
           <div className={`grid gap-2 pb-2 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
             {players.map((player, idx) => (
               <Card
