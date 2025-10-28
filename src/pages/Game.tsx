@@ -18,7 +18,6 @@ interface CricketMarks {
   19: number;
   20: number;
   25: number;
-  50: number;
 }
 
 interface GamePlayer extends Player {
@@ -64,7 +63,7 @@ const Game = () => {
       score: gameMode === "501" ? 501 : 0,
       cricketMarks:
         gameMode === "cricket"
-          ? { 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 25: 0, 50: 0 }
+          ? { 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 25: 0 }
           : undefined,
       lives: gameMode === "sudden-death" ? 3 : undefined,
     }));
@@ -74,7 +73,7 @@ const Game = () => {
 
   const currentPlayer = players[currentPlayerIndex];
 
-  const cricketNumbers = [15, 16, 17, 18, 19, 20, 25, 50];
+  const cricketNumbers = [15, 16, 17, 18, 19, 20, 25];
   const allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 50];
 
   const handleScore = (baseScore: number) => {
