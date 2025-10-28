@@ -11,21 +11,21 @@ const Home = () => {
       name: "Cricket",
       icon: Target,
       description: "Ferme les numéros et gagne avec le moins de points",
-      gradient: "from-primary/20 to-primary/5",
+      gradient: "from-primary/15 to-primary/5",
     },
     {
       id: "501",
       name: "501",
       icon: TrendingDown,
       description: "Atteins exactement zéro avec un double",
-      gradient: "from-secondary/20 to-secondary/5",
+      gradient: "from-muted/20 to-muted/5",
     },
     {
       id: "sudden-death",
       name: "Mort Subite",
       icon: Skull,
       description: "Score le plus ou perds une vie",
-      gradient: "from-accent/20 to-accent/5",
+      gradient: "from-primary/10 to-muted/10",
     },
   ];
 
@@ -33,9 +33,9 @@ const Home = () => {
     <div className="min-h-screen safe-top safe-bottom flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
       {/* Animated background orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 -left-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-primary/10 blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-1/4 -right-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-secondary/10 blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 sm:w-[600px] sm:h-[600px] rounded-full bg-accent/5 blur-3xl animate-pulse-glow" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/4 -left-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-primary/8 blur-3xl animate-pulse-glow" />
+        <div className="absolute bottom-1/4 -right-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-primary/6 blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 sm:w-[600px] sm:h-[600px] rounded-full bg-primary/5 blur-3xl animate-pulse-glow" style={{ animationDelay: '2s' }} />
       </div>
 
       <div className="w-full max-w-md relative z-10 space-y-8 sm:space-y-12 animate-fade-in">
@@ -49,7 +49,7 @@ const Home = () => {
           </div>
           <div>
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-gradient-primary mb-2 sm:mb-3">
-              DARTS PRO
+              LA FLÈCHE
             </h1>
             <p className="text-muted-foreground text-base sm:text-lg font-medium">
               Choisis ton mode de jeu

@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-[0_8px_30px_hsl(var(--primary)/0.4)] active:scale-[0.98] active:shadow-md",
-        destructive: "bg-gradient-to-br from-destructive to-destructive/80 text-destructive-foreground hover:from-destructive/90 hover:to-destructive/70 shadow-lg active:scale-[0.98]",
-        outline: "border-2 border-border bg-card/50 backdrop-blur-sm hover:bg-card hover:border-primary/60 active:scale-[0.98]",
-        secondary: "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground hover:from-secondary/90 hover:to-secondary/70 shadow-lg hover:shadow-[0_8px_30px_hsl(var(--secondary)/0.4)] active:scale-[0.98]",
-        ghost: "hover:bg-muted/50 active:bg-muted",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-[0_8px_30px_hsl(var(--primary)/0.3)] active:scale-[0.98]",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg active:scale-[0.98]",
+        outline: "border-2 border-border bg-card/50 backdrop-blur-sm hover:bg-card hover:border-primary/50 text-foreground active:scale-[0.98]",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-[0.98]",
+        ghost: "text-foreground hover:bg-muted/50 active:bg-muted",
         link: "text-primary underline-offset-4 hover:underline",
-        score: "h-12 min-w-[3rem] text-base font-bold glass-card hover:border-primary/60 hover:bg-card active:scale-95 transition-all touch-manipulation",
-        gameMode: "min-h-[7rem] text-base glass-card border-2 border-border/50 hover:border-primary/60 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.25)] active:scale-[0.98] touch-manipulation",
+        score: "h-12 min-w-[3rem] text-base font-bold glass-card text-foreground hover:border-primary/50 hover:bg-card active:scale-95 transition-all touch-manipulation",
+        gameMode: "min-h-[7rem] text-base glass-card border-2 border-border/50 text-foreground hover:border-primary/60 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.2)] active:scale-[0.98] touch-manipulation",
       },
       size: {
         default: "h-11 px-5 py-2.5",
