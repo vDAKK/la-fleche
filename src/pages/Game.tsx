@@ -394,8 +394,8 @@ const Game = () => {
         </div>
 
         {/* Players Scores */}
-        <ScrollArea className="max-h-[35vh]">
-          <div className={`grid gap-2 pr-2 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+        <ScrollArea className="max-h-[35vh] w-full rounded-lg border border-border/30 bg-background/50 p-2">
+          <div className={`grid gap-2 pb-2 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
             {players.map((player, idx) => (
               <Card
                 key={player.id}
