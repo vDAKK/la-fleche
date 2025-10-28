@@ -2,364 +2,341 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Undo2 } from "lucide-react";
+import { ArrowLeft, Undo2, Settings } from "lucide-react";
 import { toast } from "sonner";
-import {
-  GamePlayer,
-  ThrowData,
-  GameConfig,
-  initializePlayers,
-  processCricketTurn,
-  process501Turn,
-  processSuddenDeathTurn,
-} from "@/lib/gameLogic";
-import { CricketScoreBoard } from "@/components/game/CricketScoreBoard";
-import { Standard501ScoreBoard } from "@/components/game/Standard501ScoreBoard";
-import { SuddenDeathScoreBoard } from "@/components/game/SuddenDeathScoreBoard";
-import { GameSettings } from "@/components/game/GameSettings";
 
 interface Player {
   id: string;
   name: string;
 }
 
+interface CricketMarks {
+  15: number;
+  16: number;
+  17: number;
+  18: number;
+  19: number;
+  20: number;
+  25: number;
+  50: number;
+}
+
+interface GamePlayer extends Player {
+  score: number;
+  cricketMarks?: CricketMarks;
+  lives?: number;
+}
+
 const Game = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const gameMode = (searchParams.get("mode") || "cricket") as "cricket" | "501" | "sudden-death";
+  const gameMode = searchParams.get("mode") || "cricket";
   const playerIds = searchParams.get("players")?.split(",") || [];
 
   const [players, setPlayers] = useState<GamePlayer[]>([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [currentThrow, setCurrentThrow] = useState(0);
-  const [throwsThisTurn, setThrowsThisTurn] = useState<ThrowData[]>([]);
-  const [selectedMultiplier, setSelectedMultiplier] = useState(1);
+  const [dartCount, setDartCount] = useState(0);
+  const [currentThrows, setCurrentThrows] = useState<{ base: number; mult: number }[]>([]);
+  const [multiplier, setMultiplier] = useState(1);
+  const [doubleOut, setDoubleOut] = useState(true);
 
-  // Game settings
-  const [requireDoubleOut, setRequireDoubleOut] = useState(true);
-  const [targetScorePerTurn, setTargetScorePerTurn] = useState(40);
-
+  // Initialize players once
   useEffect(() => {
     const stored = localStorage.getItem("darts-players");
-    if (stored) {
-      const allPlayers: Player[] = JSON.parse(stored);
-      const config: GameConfig = {
-        mode: gameMode,
-        requireDoubleOut,
-        startingLives: 3,
-        targetScorePerTurn,
-      };
-
-      const gamePlayers = initializePlayers(playerIds, allPlayers, config);
-
-      if (gamePlayers.length < 2) {
-        toast.error("Erreur: joueurs manquants");
-        navigate("/");
-        return;
-      }
-
-      setPlayers(gamePlayers);
+    if (!stored) {
+      navigate("/");
+      return;
     }
-  }, [playerIds, gameMode, navigate]);
+
+    const allPlayers: Player[] = JSON.parse(stored);
+    const selectedPlayers = playerIds
+      .map((id) => allPlayers.find((p) => p.id === id))
+      .filter((p): p is Player => p !== undefined);
+
+    if (selectedPlayers.length < 2) {
+      toast.error("Il faut au moins 2 joueurs");
+      navigate("/");
+      return;
+    }
+
+    const gamePlayers: GamePlayer[] = selectedPlayers.map((p) => ({
+      ...p,
+      score: gameMode === "501" ? 501 : 0,
+      cricketMarks:
+        gameMode === "cricket"
+          ? { 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 25: 0, 50: 0 }
+          : undefined,
+      lives: gameMode === "sudden-death" ? 3 : undefined,
+    }));
+
+    setPlayers(gamePlayers);
+  }, []); // Run only once
 
   const currentPlayer = players[currentPlayerIndex];
 
-  // Score buttons depend on game mode
-  const scoreButtons =
-    gameMode === "cricket"
-      ? [
-          { label: "15", value: 15 },
-          { label: "16", value: 16 },
-          { label: "17", value: 17 },
-          { label: "18", value: 18 },
-          { label: "19", value: 19 },
-          { label: "20", value: 20 },
-          { label: "25", value: 25 },
-          { label: "Bull", value: 50 },
-        ]
-      : [
-          { label: "0", value: 0 },
-          { label: "1", value: 1 },
-          { label: "2", value: 2 },
-          { label: "3", value: 3 },
-          { label: "4", value: 4 },
-          { label: "5", value: 5 },
-          { label: "6", value: 6 },
-          { label: "7", value: 7 },
-          { label: "8", value: 8 },
-          { label: "9", value: 9 },
-          { label: "10", value: 10 },
-          { label: "11", value: 11 },
-          { label: "12", value: 12 },
-          { label: "13", value: 13 },
-          { label: "14", value: 14 },
-          { label: "15", value: 15 },
-          { label: "16", value: 16 },
-          { label: "17", value: 17 },
-          { label: "18", value: 18 },
-          { label: "19", value: 19 },
-          { label: "20", value: 20 },
-          { label: "25", value: 25 },
-          { label: "Bull", value: 50 },
-        ];
+  const cricketNumbers = [15, 16, 17, 18, 19, 20, 25, 50];
+  const allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 50];
 
-  const multiplierButtons = [
-    { label: "Simple", multiplier: 1 },
-    { label: "Double", multiplier: 2 },
-    { label: "Triple", multiplier: 3 },
-  ];
+  const handleScore = (baseScore: number) => {
+    const newThrows = [...currentThrows, { base: baseScore, mult: multiplier }];
+    setCurrentThrows(newThrows);
+    setDartCount(dartCount + 1);
 
-  const addScore = (baseScore: number) => {
-    const totalScore = baseScore * selectedMultiplier;
-    const throwData: ThrowData = { baseScore, multiplier: selectedMultiplier, totalScore };
+    // After 3 darts, process turn
+    if (dartCount + 1 === 3) {
+      processTurn(newThrows);
+    } else {
+      setMultiplier(1); // Reset multiplier
+    }
+  };
 
-    const newThrows = [...throwsThisTurn, throwData];
-    setThrowsThisTurn(newThrows);
-    setCurrentThrow(currentThrow + 1);
+  const processTurn = (throws: { base: number; mult: number }[]) => {
+    const updatedPlayers = [...players];
+    const player = updatedPlayers[currentPlayerIndex];
 
-    if (currentThrow + 1 >= 3) {
-      // Turn complete
-      const updatedPlayers = [...players];
-      let shouldContinue = true;
+    if (gameMode === "cricket") {
+      // Process each throw for cricket
+      throws.forEach((dart) => {
+        if (cricketNumbers.includes(dart.base) && player.cricketMarks) {
+          const currentMarks = player.cricketMarks[dart.base as keyof CricketMarks];
+          const marksToAdd = dart.mult;
+          const newMarks = Math.min(currentMarks + marksToAdd, 3);
+          const extraMarks = Math.max(0, currentMarks + marksToAdd - 3);
 
-      if (gameMode === "501") {
-        const result = process501Turn(updatedPlayers[currentPlayerIndex], newThrows, requireDoubleOut);
-        updatedPlayers[currentPlayerIndex] = result.player;
+          // Update marks
+          player.cricketMarks[dart.base as keyof CricketMarks] = newMarks;
 
-        if (result.isBust) {
-          toast.error(`Bust! Score retourne à ${result.player.score}`);
-        } else if (result.hasWon) {
-          toast.success(`🏆 ${result.player.name} a gagné!`);
-          shouldContinue = false;
-          setTimeout(() => navigate("/"), 2000);
-        }
-      } else if (gameMode === "cricket") {
-        const result = processCricketTurn(
-          updatedPlayers[currentPlayerIndex],
-          updatedPlayers,
-          currentPlayerIndex,
-          newThrows
-        );
-        updatedPlayers[currentPlayerIndex] = result.player;
+          // Score points if number was already closed
+          if (currentMarks >= 3 || (currentMarks < 3 && extraMarks > 0)) {
+            const allOthersClosed = updatedPlayers
+              .filter((_, idx) => idx !== currentPlayerIndex)
+              .every((p) => p.cricketMarks && p.cricketMarks[dart.base as keyof CricketMarks] >= 3);
 
-        if (result.hasWon) {
-          toast.success(`🏆 ${result.player.name} a gagné!`);
-          shouldContinue = false;
-          setTimeout(() => navigate("/"), 2000);
-        }
-      } else if (gameMode === "sudden-death") {
-        const result = processSuddenDeathTurn(
-          updatedPlayers[currentPlayerIndex],
-          newThrows,
-          targetScorePerTurn
-        );
-        updatedPlayers[currentPlayerIndex] = result.player;
-
-        if (result.isEliminated) {
-          toast.error(`${result.player.name} a été éliminé!`);
-        }
-
-        // Check if only one player remains
-        const activePlayers = updatedPlayers.filter((p) => (p.lives || 0) > 0);
-        if (activePlayers.length === 1) {
-          toast.success(`🏆 ${activePlayers[0].name} a gagné!`);
-          shouldContinue = false;
-          setTimeout(() => navigate("/"), 2000);
-        }
-      }
-
-      if (shouldContinue) {
-        const turnTotal = newThrows.reduce((sum, t) => sum + t.totalScore, 0);
-        updatedPlayers[currentPlayerIndex].history.push(turnTotal);
-        setPlayers(updatedPlayers);
-
-        // Move to next player (skip eliminated players in sudden death)
-        let nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
-        if (gameMode === "sudden-death") {
-          let attempts = 0;
-          while ((updatedPlayers[nextPlayerIndex].lives || 0) <= 0 && attempts < players.length) {
-            nextPlayerIndex = (nextPlayerIndex + 1) % players.length;
-            attempts++;
+            if (!allOthersClosed && extraMarks > 0) {
+              player.score += dart.base * extraMarks;
+            }
           }
         }
+      });
 
-        setCurrentPlayerIndex(nextPlayerIndex);
-        setCurrentThrow(0);
-        setThrowsThisTurn([]);
-        setSelectedMultiplier(1);
+      // Check win
+      const allClosed =
+        player.cricketMarks &&
+        cricketNumbers.every((n) => player.cricketMarks![n as keyof CricketMarks] >= 3);
+      if (allClosed) {
+        const hasHighestScore = updatedPlayers.every(
+          (p, idx) => idx === currentPlayerIndex || player.score >= p.score
+        );
+        if (hasHighestScore) {
+          toast.success(`🏆 ${player.name} a gagné!`);
+          setTimeout(() => navigate("/"), 2000);
+          setPlayers(updatedPlayers);
+          return;
+        }
       }
-    } else {
-      // Reset multiplier after each throw
-      setSelectedMultiplier(1);
+    } else if (gameMode === "501") {
+      const total = throws.reduce((a, b) => a + b.base * b.mult, 0);
+      const lastDart = throws[throws.length - 1];
+      const newScore = player.score - total;
+
+      // Check bust
+      if (newScore < 0 || newScore === 1 || (doubleOut && newScore === 0 && lastDart.mult !== 2)) {
+        toast.error("Bust!");
+      } else {
+        player.score = newScore;
+        if (newScore === 0) {
+          toast.success(`🏆 ${player.name} a gagné!`);
+          setTimeout(() => navigate("/"), 2000);
+          setPlayers(updatedPlayers);
+          return;
+        }
+      }
+    } else if (gameMode === "sudden-death") {
+      const total = throws.reduce((a, b) => a + b.base * b.mult, 0);
+      player.score += total;
+
+      if (total < 40) {
+        player.lives = (player.lives || 0) - 1;
+        if (player.lives === 0) {
+          toast.error(`${player.name} éliminé!`);
+        }
+      }
+
+      const alive = updatedPlayers.filter((p) => (p.lives || 0) > 0);
+      if (alive.length === 1) {
+        toast.success(`🏆 ${alive[0].name} a gagné!`);
+        setTimeout(() => navigate("/"), 2000);
+        setPlayers(updatedPlayers);
+        return;
+      }
+    }
+
+    setPlayers(updatedPlayers);
+
+    // Next player
+    let nextIndex = (currentPlayerIndex + 1) % players.length;
+    if (gameMode === "sudden-death") {
+      while ((updatedPlayers[nextIndex].lives || 0) <= 0) {
+        nextIndex = (nextIndex + 1) % players.length;
+      }
+    }
+
+    setCurrentPlayerIndex(nextIndex);
+    setDartCount(0);
+    setCurrentThrows([]);
+    setMultiplier(1);
+  };
+
+  const undo = () => {
+    if (dartCount > 0) {
+      setCurrentThrows(currentThrows.slice(0, -1));
+      setDartCount(dartCount - 1);
+      setMultiplier(1);
     }
   };
 
-  const undoLastThrow = () => {
-    if (currentThrow > 0) {
-      setThrowsThisTurn(throwsThisTurn.slice(0, -1));
-      setCurrentThrow(currentThrow - 1);
-    }
-  };
-
-  const gameRules = {
-    cricket:
-      "Fermez 15-20, 25 et Bull (3 hits chacun). Marquez des points sur les numéros fermés. Plus haut score gagne!",
-    "501": requireDoubleOut
-      ? "Commencez à 501. Soustrayez vos lancers. Finissez EXACTEMENT à 0 avec un DOUBLE!"
-      : "Commencez à 501. Soustrayez vos lancers. Premier à exactement 0 gagne!",
-    "sudden-death": `Atteignez ${targetScorePerTurn}+ points par tour ou perdez une vie. Dernier survivant gagne!`,
+  const getMarkSymbol = (marks: number) => {
+    if (marks === 0) return "";
+    if (marks === 1) return "/";
+    if (marks === 2) return "X";
+    return "✓";
   };
 
   if (!currentPlayer) return null;
 
-  return (
-    <div className="min-h-screen p-4 bg-background relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 opacity-10">
-        <div
-          className="absolute top-10 right-10 w-64 h-64 bg-primary/40 rounded-full blur-3xl animate-pulse"
-        />
-        <div
-          className="absolute bottom-10 left-10 w-64 h-64 bg-secondary/40 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "1s" }}
-        />
-      </div>
+  const numbersToShow = gameMode === "cricket" ? cricketNumbers : allNumbers;
 
-      <div className="max-w-md mx-auto space-y-4 relative z-10">
+  return (
+    <div className="min-h-screen p-3 bg-background">
+      <div className="max-w-lg mx-auto space-y-3">
         {/* Header */}
-        <div className="flex items-center justify-between animate-fade-in">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/")}
-            className="hover:scale-110 transition-transform"
-          >
-            <ArrowLeft className="w-6 h-6" />
+        <div className="flex items-center justify-between">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+            <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-4xl font-bold capitalize tracking-wider text-gradient-primary drop-shadow-lg">
-            {gameMode === "sudden-death" ? "Mort Subite" : gameMode}
-          </h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={undoLastThrow}
-            disabled={currentThrow === 0}
-            className="hover:scale-110 transition-transform disabled:opacity-30"
-          >
-            <Undo2 className="w-6 h-6" />
+          <h1 className="text-2xl font-bold capitalize">{gameMode}</h1>
+          <Button variant="ghost" size="sm" onClick={undo} disabled={dartCount === 0}>
+            <Undo2 className="w-5 h-5" />
           </Button>
         </div>
 
-        {/* Settings */}
-        <GameSettings
-          gameMode={gameMode}
-          requireDoubleOut={requireDoubleOut}
-          onRequireDoubleOutChange={setRequireDoubleOut}
-          targetScorePerTurn={targetScorePerTurn}
-          onTargetScorePerTurnChange={setTargetScorePerTurn}
-        />
+        {/* Scores */}
+        <div className="grid grid-cols-2 gap-2">
+          {players.map((player, idx) => (
+            <Card
+              key={player.id}
+              className={`p-3 ${
+                idx === currentPlayerIndex
+                  ? "border-2 border-primary bg-primary/10"
+                  : "border opacity-60"
+              }`}
+            >
+              <div className="font-bold text-sm truncate">{player.name}</div>
+              <div className="text-3xl font-bold text-primary mt-1">{player.score}</div>
 
-        {/* Rules */}
-        <Card
-          className="p-4 bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/40 shadow-lg animate-fade-in"
-          style={{ animationDelay: "0.1s" }}
-        >
-          <div className="text-base text-center font-semibold tracking-wide">
-            📋 {gameRules[gameMode]}
-          </div>
-        </Card>
-
-        {/* Scores - Different component based on game mode */}
-        {gameMode === "cricket" && (
-          <CricketScoreBoard players={players} currentPlayerIndex={currentPlayerIndex} />
-        )}
-        {gameMode === "501" && (
-          <Standard501ScoreBoard players={players} currentPlayerIndex={currentPlayerIndex} />
-        )}
-        {gameMode === "sudden-death" && (
-          <SuddenDeathScoreBoard players={players} currentPlayerIndex={currentPlayerIndex} />
-        )}
-
-        {/* Current Turn Info */}
-        <Card
-          className="p-6 bg-gradient-to-br from-card to-primary/5 border-3 border-primary/40 shadow-xl animate-fade-in"
-          style={{ animationDelay: "0.3s" }}
-        >
-          <div className="text-center space-y-4">
-            <div className="text-2xl font-bold tracking-wide">
-              Tour de <span className="text-primary">{currentPlayer.name}</span>
-            </div>
-            <div className="flex justify-center gap-4">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={`w-20 h-20 rounded-xl border-3 flex items-center justify-center text-2xl font-bold transition-all duration-300 ${
-                    i < currentThrow
-                      ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground border-secondary shadow-lg glow-secondary scale-105"
-                      : i === currentThrow
-                      ? "bg-primary/20 border-primary animate-pulse ring-2 ring-primary/50"
-                      : "bg-muted/50 border-border/50"
-                  }`}
-                >
-                  {i < throwsThisTurn.length ? throwsThisTurn[i].totalScore : ""}
+              {/* Cricket marks */}
+              {gameMode === "cricket" && player.cricketMarks && (
+                <div className="mt-2 grid grid-cols-4 gap-1">
+                  {cricketNumbers.map((num) => {
+                    const marks = player.cricketMarks![num as keyof CricketMarks];
+                    const closed = marks >= 3;
+                    return (
+                      <div
+                        key={num}
+                        className={`text-[10px] p-1 rounded ${
+                          closed
+                            ? "bg-secondary text-secondary-foreground font-bold"
+                            : marks > 0
+                            ? "bg-primary/20"
+                            : "bg-muted"
+                        }`}
+                      >
+                        <div>{num === 50 ? "B" : num}</div>
+                        <div className="font-bold">{getMarkSymbol(marks)}</div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          </div>
-        </Card>
+              )}
 
-        {/* Multiplier Selection */}
-        <Card
-          className="p-5 bg-gradient-to-br from-card to-accent/5 border-3 border-accent/40 shadow-xl animate-fade-in"
-          style={{ animationDelay: "0.4s" }}
-        >
-          <div className="text-center mb-4">
-            <span className="text-base font-bold text-accent tracking-wide">
-              Multiplicateur sélectionné
-            </span>
+              {/* Lives */}
+              {gameMode === "sudden-death" && (
+                <div className="mt-2 text-sm">❤️ {player.lives}</div>
+              )}
+            </Card>
+          ))}
+        </div>
+
+        {/* Current turn */}
+        <Card className="p-3">
+          <div className="text-center text-sm font-bold mb-2">
+            {currentPlayer.name} - Lancer {dartCount + 1}/3
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            {multiplierButtons.map((btn) => (
-              <Button
-                key={btn.label}
-                variant={selectedMultiplier === btn.multiplier ? "default" : "outline"}
-                size="lg"
-                onClick={() => setSelectedMultiplier(btn.multiplier)}
-                className="text-lg font-bold h-14 hover:scale-105 transition-all duration-300 shadow-md"
+          <div className="flex justify-center gap-2">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className={`w-14 h-14 rounded border-2 flex items-center justify-center text-lg font-bold ${
+                  i < dartCount
+                    ? "bg-secondary border-secondary"
+                    : i === dartCount
+                    ? "bg-primary/20 border-primary"
+                    : "bg-muted border-muted"
+                }`}
               >
-                {btn.label}
-              </Button>
+                {currentThrows[i] ? currentThrows[i].base * currentThrows[i].mult : ""}
+              </div>
             ))}
           </div>
         </Card>
 
-        {/* Score Pad */}
-        <div
-          className={`grid gap-3 animate-fade-in ${
-            gameMode === "cricket" ? "grid-cols-4" : "grid-cols-4"
-          }`}
-          style={{ animationDelay: "0.5s" }}
-        >
-          {scoreButtons.map((btn, index) => (
+        {/* Multiplier */}
+        <div className="grid grid-cols-3 gap-2">
+          {[1, 2, 3].map((m) => (
             <Button
-              key={btn.label}
-              variant="score"
-              onClick={() => addScore(btn.value)}
-              className={`text-xl font-bold h-16 hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl animate-fade-in ${
-                btn.label === "Bull" ? "col-span-2" : ""
-              } ${
-                selectedMultiplier === 2
-                  ? "ring-4 ring-accent glow-accent"
-                  : selectedMultiplier === 3
-                  ? "ring-4 ring-secondary glow-secondary"
-                  : ""
-              }`}
-              style={{ animationDelay: `${0.55 + index * 0.02}s` }}
+              key={m}
+              variant={multiplier === m ? "default" : "outline"}
+              size="sm"
+              onClick={() => setMultiplier(m)}
             >
-              {btn.label}
+              {m === 1 ? "Simple" : m === 2 ? "Double" : "Triple"}
             </Button>
           ))}
         </div>
+
+        {/* Number pad */}
+        <div className="grid grid-cols-5 gap-2">
+          {numbersToShow.map((num) => (
+            <Button
+              key={num}
+              variant="secondary"
+              size="sm"
+              onClick={() => handleScore(num)}
+              className={`h-12 text-base font-bold ${
+                num === 25 || num === 50 ? "col-span-2" : ""
+              } ${
+                multiplier === 2
+                  ? "ring-2 ring-accent"
+                  : multiplier === 3
+                  ? "ring-2 ring-secondary"
+                  : ""
+              }`}
+            >
+              {num === 50 ? "Bull" : num}
+            </Button>
+          ))}
+        </div>
+
+        {gameMode === "501" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setDoubleOut(!doubleOut)}
+            className="w-full text-xs"
+          >
+            Double Out: {doubleOut ? "ON" : "OFF"}
+          </Button>
+        )}
       </div>
     </div>
   );
