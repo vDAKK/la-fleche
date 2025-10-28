@@ -44,7 +44,7 @@ const GameConfig = () => {
       <div className="max-w-lg mx-auto space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/players?mode=${mode}`)}>
             <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </Button>
           <h1 className="text-2xl sm:text-3xl font-bold">Configuration</h1>
