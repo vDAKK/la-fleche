@@ -10,19 +10,9 @@ interface Player {
   name: string;
 }
 
-interface CricketMarks {
-  15: number;
-  16: number;
-  17: number;
-  18: number;
-  19: number;
-  20: number;
-  25: number;
-}
-
 interface GamePlayer extends Player {
   score: number;
-  cricketMarks?: CricketMarks;
+  cricketMarks?: Record<number, number>;
   lives?: number;
 }
 
@@ -31,6 +21,11 @@ const Game = () => {
   const [searchParams] = useSearchParams();
   const gameMode = searchParams.get("mode") || "cricket";
   const playerIds = searchParams.get("players")?.split(",") || [];
+  
+  // Game config from URL params
+  const configLives = parseInt(searchParams.get("lives") || "3");
+  const configStartScore = parseInt(searchParams.get("startScore") || "501");
+  const configCricketMode = (searchParams.get("cricketMode") || "classic") as "classic" | "random";
 
   const [players, setPlayers] = useState<GamePlayer[]>([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
@@ -42,6 +37,7 @@ const Game = () => {
     players: GamePlayer[];
     playerIndex: number;
   } | null>(null);
+  const [cricketNumbers, setCricketNumbers] = useState<number[]>([]);
 
   // Initialize players once
   useEffect(() => {
@@ -62,14 +58,28 @@ const Game = () => {
       return;
     }
 
+    // Generate cricket numbers
+    let numbers: number[];
+    if (gameMode === "cricket") {
+      if (configCricketMode === "random") {
+        // Generate 7 random numbers between 1-20 + bull (25)
+        const availableNumbers = Array.from({ length: 20 }, (_, i) => i + 1);
+        const shuffled = availableNumbers.sort(() => Math.random() - 0.5);
+        numbers = shuffled.slice(0, 6).concat([25]).sort((a, b) => a - b);
+      } else {
+        numbers = [15, 16, 17, 18, 19, 20, 25];
+      }
+      setCricketNumbers(numbers);
+    }
+
     const gamePlayers: GamePlayer[] = selectedPlayers.map((p) => ({
       ...p,
-      score: gameMode === "501" ? 501 : 0,
+      score: gameMode === "501" ? configStartScore : 0,
       cricketMarks:
         gameMode === "cricket"
-          ? { 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 25: 0 }
+          ? Object.fromEntries(numbers.map(n => [n, 0]))
           : undefined,
-      lives: gameMode === "sudden-death" ? 3 : undefined,
+      lives: gameMode === "sudden-death" ? configLives : undefined,
     }));
 
     setPlayers(gamePlayers);
@@ -77,8 +87,7 @@ const Game = () => {
 
   const currentPlayer = players[currentPlayerIndex];
 
-  const cricketNumbers = [15, 16, 17, 18, 19, 20, 25];
-  const allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 50];
+  const allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25];
 
   const handleScore = (baseScore: number) => {
     const newThrows = [...currentThrows, { base: baseScore, mult: multiplier }];
@@ -107,19 +116,19 @@ const Game = () => {
       // Process each throw for cricket
       throws.forEach((dart) => {
         if (cricketNumbers.includes(dart.base) && player.cricketMarks) {
-          const currentMarks = player.cricketMarks[dart.base as keyof CricketMarks];
+          const currentMarks = player.cricketMarks[dart.base] || 0;
           const marksToAdd = dart.mult;
           const newMarks = Math.min(currentMarks + marksToAdd, 3);
           const extraMarks = Math.max(0, currentMarks + marksToAdd - 3);
 
           // Update marks
-          player.cricketMarks[dart.base as keyof CricketMarks] = newMarks;
+          player.cricketMarks[dart.base] = newMarks;
 
           // Score points for OTHER players who haven't closed this number
           if (extraMarks > 0) {
             updatedPlayers.forEach((otherPlayer, idx) => {
               if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
-                const otherMarks = otherPlayer.cricketMarks[dart.base as keyof CricketMarks];
+                const otherMarks = otherPlayer.cricketMarks[dart.base] || 0;
                 if (otherMarks < 3) {
                   otherPlayer.score += dart.base * extraMarks;
                 }
@@ -132,7 +141,7 @@ const Game = () => {
       // Check win
       const allClosed =
         player.cricketMarks &&
-        cricketNumbers.every((n) => player.cricketMarks![n as keyof CricketMarks] >= 3);
+        cricketNumbers.every((n) => (player.cricketMarks![n] || 0) >= 3);
       if (allClosed) {
         const hasHighestScore = updatedPlayers.every(
           (p, idx) => idx === currentPlayerIndex || player.score >= p.score
@@ -258,7 +267,7 @@ const Game = () => {
               {gameMode === "cricket" && player.cricketMarks && (
                 <div className="mt-2 grid grid-cols-4 gap-1">
                   {cricketNumbers.map((num) => {
-                    const marks = player.cricketMarks![num as keyof CricketMarks];
+                    const marks = player.cricketMarks![num] || 0;
                     const closed = marks >= 3;
                     return (
                       <div

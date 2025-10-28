@@ -64,9 +64,8 @@ const Players = () => {
       toast.error("Il faut au moins 2 joueurs");
       return;
     }
-
-    const playerIds = selectedPlayers.map((p) => p.id).join(",");
-    navigate(`/game?mode=${gameMode}&players=${playerIds}`);
+    const playerIds = selectedPlayers.map(p => p.id).join(",");
+    navigate(`/config?mode=${gameMode}&players=${playerIds}`);
   };
 
   return (
