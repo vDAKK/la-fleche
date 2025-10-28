@@ -16,14 +16,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.lovable.63388a6310ac40b691afdcee1bd8ff6f"
+      "bundleIdentifier": "app.lovable.a63388a6310ac40b691afdcee1bd8ff6f"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./public/placeholder.svg",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.lovable.63388a6310ac40b691afdcee1bd8ff6f"
+      "package": "app.lovable.a63388a6310ac40b691afdcee1bd8ff6f"
     },
     "web": {
       "favicon": "./public/favicon.ico",
