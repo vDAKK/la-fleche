@@ -106,15 +106,16 @@ const Game = () => {
           // Update marks
           player.cricketMarks[dart.base as keyof CricketMarks] = newMarks;
 
-          // Score points if number was already closed
-          if (currentMarks >= 3 || (currentMarks < 3 && extraMarks > 0)) {
-            const allOthersClosed = updatedPlayers
-              .filter((_, idx) => idx !== currentPlayerIndex)
-              .every((p) => p.cricketMarks && p.cricketMarks[dart.base as keyof CricketMarks] >= 3);
-
-            if (!allOthersClosed && extraMarks > 0) {
-              player.score += dart.base * extraMarks;
-            }
+          // Score points for OTHER players who haven't closed this number
+          if (extraMarks > 0) {
+            updatedPlayers.forEach((otherPlayer, idx) => {
+              if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
+                const otherMarks = otherPlayer.cricketMarks[dart.base as keyof CricketMarks];
+                if (otherMarks < 3) {
+                  otherPlayer.score += dart.base * extraMarks;
+                }
+              }
+            });
           }
         }
       });
@@ -312,6 +313,7 @@ const Game = () => {
               variant="secondary"
               size="sm"
               onClick={() => handleScore(num)}
+              disabled={num === 25 && multiplier === 3}
               className={`h-12 text-base font-bold ${
                 num === 25 || num === 50 ? "col-span-2" : ""
               } ${
@@ -322,7 +324,7 @@ const Game = () => {
                   : ""
               }`}
             >
-              {num === 50 ? "Bull" : num}
+              {num}
             </Button>
           ))}
         </div>
