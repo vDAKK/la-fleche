@@ -103,17 +103,17 @@ const Players = () => {
               {selectedPlayers.map((player, index) => (
                 <Card
                   key={player.id}
-                  className="p-4 sm:p-5 flex items-center justify-between glass-card border-primary/30 shadow-lg animate-scale-in"
+                  className="px-3 py-2 sm:px-4 sm:py-2.5 flex items-center justify-between glass-card border-primary/30 shadow-lg animate-scale-in"
                   style={{ animationDelay: `${0.05 * index}s` }}
                 >
-                  <span className="font-bold text-base sm:text-xl truncate pr-2">{player.name}</span>
+                  <span className="font-semibold text-sm sm:text-base truncate pr-2">{player.name}</span>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removePlayer(player.id)}
-                    className="shrink-0 hover:text-destructive"
+                    className="shrink-0 hover:text-destructive h-8 w-8"
                   >
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <X className="w-4 h-4" />
                   </Button>
                 </Card>
               ))}
