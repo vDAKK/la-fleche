@@ -10,9 +10,21 @@ interface Player {
   name: string;
 }
 
+interface CricketHits {
+  15: number;
+  16: number;
+  17: number;
+  18: number;
+  19: number;
+  20: number;
+  25: number;
+  50: number;
+}
+
 interface GamePlayer extends Player {
   score: number;
   history: number[];
+  cricketHits?: CricketHits;
 }
 
 const Game = () => {
@@ -38,6 +50,9 @@ const Game = () => {
           ...p,
           score: gameMode === "501" ? 501 : 0,
           history: [],
+          cricketHits: gameMode === "cricket" ? {
+            15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 25: 0, 50: 0
+          } : undefined,
         }));
 
       if (gamePlayers.length < 2) {
@@ -117,6 +132,24 @@ const Game = () => {
           setTimeout(() => navigate("/"), 2000);
           return;
         }
+      } else if (gameMode === "cricket") {
+        // Cricket logic: track hits on each number
+        newThrows.forEach((throwScore) => {
+          const number = throwScore as keyof CricketHits;
+          if (player.cricketHits && player.cricketHits[number] !== undefined) {
+            player.cricketHits[number] = Math.min(player.cricketHits[number] + 1, 3);
+          }
+        });
+        
+        // Check if player won (all numbers closed)
+        if (player.cricketHits) {
+          const allClosed = Object.values(player.cricketHits).every(hits => hits >= 3);
+          if (allClosed) {
+            toast.success(`🏆 ${player.name} a gagné!`);
+            setTimeout(() => navigate("/"), 2000);
+            return;
+          }
+        }
       } else {
         player.score += turnTotal;
       }
@@ -140,6 +173,19 @@ const Game = () => {
       setThrowsThisTurn(throwsThisTurn.slice(0, -1));
       setCurrentThrow(currentThrow - 1);
     }
+  };
+
+  const getHitSymbol = (hits: number) => {
+    if (hits === 0) return "";
+    if (hits === 1) return "/";
+    if (hits === 2) return "X";
+    return "⊗";
+  };
+
+  const gameRules = {
+    "501": "Commencez à 501 points. Soustrayez vos lancers. Premier à 0 gagne!",
+    "cricket": "Fermez 15-20, 25 et Bull (3 hits chacun). Premier à tout fermer gagne!",
+    "sudden-death": "Marquez le plus de points possible!"
   };
 
   if (!currentPlayer) return null;
@@ -167,6 +213,13 @@ const Game = () => {
           </Button>
         </div>
 
+        {/* Rules */}
+        <Card className="p-3 bg-accent/20 border-accent/40">
+          <div className="text-sm text-center font-medium">
+            📋 {gameRules[gameMode as keyof typeof gameRules]}
+          </div>
+        </Card>
+
         {/* Scores */}
         <div className="grid grid-cols-2 gap-2">
           {players.map((player, idx) => (
@@ -182,6 +235,27 @@ const Game = () => {
               <div className="text-4xl font-bold text-primary mt-2">
                 {player.score}
               </div>
+              
+              {/* Cricket Progress */}
+              {gameMode === "cricket" && player.cricketHits && (
+                <div className="mt-3 grid grid-cols-4 gap-1 text-xs">
+                  {[15, 16, 17, 18, 19, 20, 25, 50].map((num) => (
+                    <div
+                      key={num}
+                      className={`p-1 rounded ${
+                        player.cricketHits![num as keyof CricketHits] >= 3
+                          ? "bg-secondary text-secondary-foreground font-bold"
+                          : "bg-muted"
+                      }`}
+                    >
+                      <div className="text-[10px]">{num === 50 ? "B" : num}</div>
+                      <div className="font-bold">
+                        {getHitSymbol(player.cricketHits[num as keyof CricketHits])}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </Card>
           ))}
         </div>
