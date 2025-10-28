@@ -94,6 +94,19 @@ const Game = () => {
     setCurrentThrows(newThrows);
     setDartCount(dartCount + 1);
 
+    // For 501 mode, check immediately if player reached 0
+    if (gameMode === "501") {
+      const total = newThrows.reduce((a, b) => a + b.base * b.mult, 0);
+      const newScore = currentPlayer.score - total;
+      const lastDart = newThrows[newThrows.length - 1];
+      
+      // If player reaches exactly 0 with valid conditions, end turn immediately
+      if (newScore === 0 && (!doubleOut || lastDart.mult === 2)) {
+        processTurn(newThrows);
+        return;
+      }
+    }
+
     // After 3 darts, process turn
     if (dartCount + 1 === 3) {
       processTurn(newThrows);
