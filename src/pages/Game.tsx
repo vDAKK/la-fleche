@@ -38,6 +38,7 @@ const Game = () => {
     playerIndex: number;
   } | null>(null);
   const [cricketNumbers, setCricketNumbers] = useState<number[]>([]);
+  const [roundScores, setRoundScores] = useState<Map<string, number>>(new Map());
 
   // Initialize players once
   useEffect(() => {
@@ -187,11 +188,48 @@ const Game = () => {
       const total = throws.reduce((a, b) => a + b.base * b.mult, 0);
       player.score += total;
 
-      if (total < 40) {
-        player.lives = (player.lives || 0) - 1;
-        if (player.lives === 0) {
-          toast.error(`${player.name} éliminé!`);
-        }
+      // Store this turn's score
+      const newRoundScores = new Map(roundScores);
+      newRoundScores.set(player.id, total);
+
+      // Check if round is complete (all players have played)
+      let nextIndex = (currentPlayerIndex + 1) % players.length;
+      while ((updatedPlayers[nextIndex].lives || 0) <= 0 && nextIndex !== 0) {
+        nextIndex = (nextIndex + 1) % players.length;
+      }
+
+      // If we're back to player 0 (or first alive player), round is complete
+      const alivePlayers = updatedPlayers.filter((p) => (p.lives || 0) > 0);
+      const isRoundComplete = newRoundScores.size === alivePlayers.length;
+
+      if (isRoundComplete) {
+        // Find player(s) with lowest score
+        let lowestScore = Infinity;
+        const scores = Array.from(newRoundScores.entries());
+        
+        scores.forEach(([_, score]) => {
+          if (score < lowestScore) lowestScore = score;
+        });
+
+        // Remove life from player(s) with lowest score
+        scores.forEach(([playerId, score]) => {
+          if (score === lowestScore) {
+            const loserPlayer = updatedPlayers.find(p => p.id === playerId);
+            if (loserPlayer && loserPlayer.lives) {
+              loserPlayer.lives -= 1;
+              if (loserPlayer.lives === 0) {
+                toast.error(`${loserPlayer.name} éliminé!`);
+              } else {
+                toast.warning(`${loserPlayer.name} perd une vie (${score} pts)`);
+              }
+            }
+          }
+        });
+
+        // Clear round scores for next round
+        setRoundScores(new Map());
+      } else {
+        setRoundScores(newRoundScores);
       }
 
       const alive = updatedPlayers.filter((p) => (p.lives || 0) > 0);
@@ -233,6 +271,7 @@ const Game = () => {
       setCurrentThrows([]);
       setMultiplier(1);
       setPreviousTurnState(null);
+      setRoundScores(new Map()); // Reset round scores
       toast.info("Tour précédent annulé");
     }
   };
