@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Plus, Play, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -99,25 +100,27 @@ const Players = () => {
               <p className="text-xs sm:text-sm text-muted-foreground mt-2">Ajoute au moins 2 joueurs</p>
             </Card>
           ) : (
-            <div className="space-y-2 sm:space-y-3">
-              {selectedPlayers.map((player, index) => (
-                <Card
-                  key={player.id}
-                  className="px-3 py-2 sm:px-4 sm:py-2.5 flex items-center justify-between glass-card border-primary/30 shadow-lg animate-scale-in"
-                  style={{ animationDelay: `${0.05 * index}s` }}
-                >
-                  <span className="font-semibold text-sm sm:text-base truncate pr-2">{player.name}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removePlayer(player.id)}
-                    className="shrink-0 hover:text-destructive h-8 w-8"
+            <ScrollArea className="max-h-[40vh]">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-2">
+                {selectedPlayers.map((player, index) => (
+                  <Card
+                    key={player.id}
+                    className="px-3 py-2 flex items-center justify-between glass-card border-primary/30 shadow-lg animate-scale-in"
+                    style={{ animationDelay: `${0.05 * index}s` }}
                   >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </Card>
-              ))}
-            </div>
+                    <span className="font-semibold text-sm truncate pr-1">{player.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removePlayer(player.id)}
+                      className="shrink-0 hover:text-destructive h-7 w-7"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
           )}
         </div>
 
@@ -150,22 +153,24 @@ const Players = () => {
         {savedPlayers.length > 0 && (
           <div className="space-y-3 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <h2 className="text-xl sm:text-2xl font-bold text-accent">Enregistrés</h2>
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              {savedPlayers.map((player, index) => {
-                const isSelected = selectedPlayers.find((p) => p.id === player.id);
-                return (
-                  <Button
-                    key={player.id}
-                    variant={isSelected ? "default" : "outline"}
-                    className="h-auto py-3 sm:py-4 text-sm sm:text-base font-semibold animate-scale-in"
-                    style={{ animationDelay: `${0.35 + index * 0.02}s` }}
-                    onClick={() => togglePlayer(player)}
-                  >
-                    <span className="truncate">{player.name}</span>
-                  </Button>
-                );
-              })}
-            </div>
+            <ScrollArea className="max-h-[30vh]">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 pr-2">
+                {savedPlayers.map((player, index) => {
+                  const isSelected = selectedPlayers.find((p) => p.id === player.id);
+                  return (
+                    <Button
+                      key={player.id}
+                      variant={isSelected ? "default" : "outline"}
+                      className="h-auto py-3 sm:py-4 text-sm sm:text-base font-semibold animate-scale-in"
+                      style={{ animationDelay: `${0.35 + index * 0.02}s` }}
+                      onClick={() => togglePlayer(player)}
+                    >
+                      <span className="truncate">{player.name}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </ScrollArea>
           </div>
         )}
 
