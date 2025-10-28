@@ -454,6 +454,17 @@ const Game = () => {
     return "h-[28vh] sm:h-[30vh]"; // 4+ joueurs
   };
 
+  // Pour la mort subite, déterminer le(s) joueur(s) en danger
+  const getLowestTurnScore = () => {
+    if (gameMode !== "sudden-death" || roundScores.size === 0) return null;
+    let lowest = Infinity;
+    roundScores.forEach((score) => {
+      if (score < lowest) lowest = score;
+    });
+    return lowest;
+  };
+  const lowestTurnScore = getLowestTurnScore();
+
   return (
     <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-hidden">
       <div className="flex-1 overflow-hidden overscroll-none p-3 sm:p-4 flex flex-col">
@@ -478,17 +489,28 @@ const Game = () => {
         {/* Players Scores */}
         <ScrollArea className={`overflow-auto overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 bg-background/50 p-2 ${getScoresHeightClass()}`}>
           <div className={`grid gap-2 pb-2 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
-            {players.map((player, idx) => (
+            {players.map((player, idx) => {
+              const turnScore = gameMode === "sudden-death" ? (roundScores.get(player.id) || 0) : null;
+              const isInDanger = gameMode === "sudden-death" 
+                && lowestTurnScore !== null 
+                && turnScore === lowestTurnScore 
+                && roundScores.size > 0;
+              
+              return (
               <Card
                 key={player.id}
                 className={`p-2 sm:p-3 glass-card transition-all duration-300 ${
                   idx === currentPlayerIndex
                     ? "border-2 border-primary bg-primary/10 shadow-lg glow-primary"
+                    : isInDanger
+                    ? "border-2 border-destructive bg-destructive/10 shadow-lg shadow-destructive/30 animate-pulse"
                     : "border border-border/50 opacity-70"
                 }`}
               >
                 <div className="font-bold text-xs truncate mb-1">{player.name}</div>
-                <div className="text-xl sm:text-2xl font-bold text-primary">{player.score}</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">
+                  {gameMode === "sudden-death" ? turnScore : player.score}
+                </div>
 
                 {/* Cricket marks */}
                 {gameMode === "cricket" && player.cricketMarks && (
@@ -528,7 +550,8 @@ const Game = () => {
                   </div>
                 )}
               </Card>
-            ))}
+            );
+            })}
           </div>
         </ScrollArea>
 
