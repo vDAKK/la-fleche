@@ -1,16 +1,14 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
   workflow_dispatch:
 
 permissions:
   contents: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
@@ -31,13 +29,15 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Add SPA fallback (404.html)
+      - name: Add SPA fallback
         run: cp dist/index.html dist/404.html
 
-      - name: Deploy to gh-pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages
-          folder: dist
-          clean: true
-          commit-message: 'Deploy: ${{ github.sha }}'
+      - name: Deploy to docs folder
+        run: |
+          rm -rf docs
+          mv dist docs
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add docs
+          git commit -m "Deploy: ${{ github.sha }}" || echo "No changes to commit"
+          git push
