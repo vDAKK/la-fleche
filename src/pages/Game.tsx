@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Undo2, Settings } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, Undo2, Trophy, TrendingUp, Target } from "lucide-react";
 import { toast } from "sonner";
 
 interface Player {
@@ -14,6 +15,8 @@ interface GamePlayer extends Player {
   score: number;
   cricketMarks?: Record<number, number>;
   lives?: number;
+  turnsPlayed?: number;
+  totalThrown?: number;
 }
 
 const Game = () => {
@@ -39,6 +42,8 @@ const Game = () => {
   } | null>(null);
   const [cricketNumbers, setCricketNumbers] = useState<number[]>([]);
   const [roundScores, setRoundScores] = useState<Map<string, number>>(new Map());
+  const [winner, setWinner] = useState<GamePlayer | null>(null);
+  const [showVictoryDialog, setShowVictoryDialog] = useState(false);
 
   // Initialize players once
   useEffect(() => {
@@ -81,6 +86,8 @@ const Game = () => {
           ? Object.fromEntries(numbers.map(n => [n, 0]))
           : undefined,
       lives: gameMode === "sudden-death" ? configLives : undefined,
+      turnsPlayed: 0,
+      totalThrown: 0,
     }));
 
     setPlayers(gamePlayers);
@@ -125,6 +132,11 @@ const Game = () => {
 
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayerIndex];
+    
+    // Track statistics
+    player.turnsPlayed = (player.turnsPlayed || 0) + 1;
+    const turnTotal = throws.reduce((a, b) => a + b.base * b.mult, 0);
+    player.totalThrown = (player.totalThrown || 0) + turnTotal;
 
     if (gameMode === "cricket") {
       // Process each throw for cricket
@@ -161,8 +173,8 @@ const Game = () => {
           (p, idx) => idx === currentPlayerIndex || player.score <= p.score
         );
         if (hasLowestScore) {
-          toast.success(`🏆 ${player.name} a gagné!`);
-          setTimeout(() => navigate("/"), 2000);
+          setWinner(player);
+          setShowVictoryDialog(true);
           setPlayers(updatedPlayers);
           return;
         }
@@ -178,8 +190,8 @@ const Game = () => {
       } else {
         player.score = newScore;
         if (newScore === 0) {
-          toast.success(`🏆 ${player.name} a gagné!`);
-          setTimeout(() => navigate("/"), 2000);
+          setWinner(player);
+          setShowVictoryDialog(true);
           setPlayers(updatedPlayers);
           return;
         }
@@ -234,8 +246,8 @@ const Game = () => {
 
       const alive = updatedPlayers.filter((p) => (p.lives || 0) > 0);
       if (alive.length === 1) {
-        toast.success(`🏆 ${alive[0].name} a gagné!`);
-        setTimeout(() => navigate("/"), 2000);
+        setWinner(alive[0]);
+        setShowVictoryDialog(true);
         setPlayers(updatedPlayers);
         return;
       }
@@ -422,6 +434,135 @@ const Game = () => {
           </Button>
         )}
       </div>
+
+      {/* Victory Dialog */}
+      <Dialog open={showVictoryDialog} onOpenChange={setShowVictoryDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-3xl font-bold">
+              <Trophy className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
+              🏆 Victoire !
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Winner */}
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-primary mb-2">
+                {winner?.name}
+              </h2>
+              <p className="text-muted-foreground">a remporté la partie !</p>
+            </div>
+
+            {/* Statistics */}
+            <Card className="p-4 space-y-4">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Statistiques
+              </h3>
+              
+              <div className="space-y-3">
+                {players.map((player) => (
+                  <div 
+                    key={player.id}
+                    className={`p-3 rounded-lg ${
+                      player.id === winner?.id 
+                        ? "bg-primary/20 border-2 border-primary" 
+                        : "bg-muted"
+                    }`}
+                  >
+                    <div className="font-bold mb-2">{player.name}</div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {gameMode === "501" && (
+                        <>
+                          <div>
+                            <div className="text-muted-foreground">Score final</div>
+                            <div className="font-bold">{player.score}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Moyenne</div>
+                            <div className="font-bold">
+                              {player.turnsPlayed && player.totalThrown
+                                ? Math.round(player.totalThrown / player.turnsPlayed)
+                                : 0}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Tours joués</div>
+                            <div className="font-bold">{player.turnsPlayed || 0}</div>
+                          </div>
+                        </>
+                      )}
+                      
+                      {gameMode === "cricket" && (
+                        <>
+                          <div>
+                            <div className="text-muted-foreground">Score</div>
+                            <div className="font-bold">{player.score}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Numéros fermés</div>
+                            <div className="font-bold">
+                              {player.cricketMarks 
+                                ? Object.values(player.cricketMarks).filter(m => m >= 3).length
+                                : 0} / {cricketNumbers.length}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Tours joués</div>
+                            <div className="font-bold">{player.turnsPlayed || 0}</div>
+                          </div>
+                        </>
+                      )}
+                      
+                      {gameMode === "sudden-death" && (
+                        <>
+                          <div>
+                            <div className="text-muted-foreground">Score total</div>
+                            <div className="font-bold">{player.score}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Moyenne/tour</div>
+                            <div className="font-bold">
+                              {player.turnsPlayed && player.totalThrown
+                                ? Math.round(player.totalThrown / player.turnsPlayed)
+                                : 0}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Tours survécus</div>
+                            <div className="font-bold">{player.turnsPlayed || 0}</div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  setShowVictoryDialog(false);
+                  setWinner(null);
+                }}
+              >
+                Continuer
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => navigate("/")}
+              >
+                Menu principal
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
