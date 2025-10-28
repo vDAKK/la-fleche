@@ -13,16 +13,16 @@ const Home = () => {
       description: "Ferme les numéros 15-20 et le bull",
     },
     {
-      id: "sudden-death",
-      name: "Mort Subite",
-      icon: Skull,
-      description: "Dernier joueur restant gagne",
-    },
-    {
       id: "501",
       name: "501",
       icon: TrendingDown,
-      description: "Atteins exactement zéro",
+      description: "Atteins exactement zéro avec un double",
+    },
+    {
+      id: "sudden-death",
+      name: "Mort Subite",
+      icon: Skull,
+      description: "Survie - dernier debout gagne",
     },
   ];
 
