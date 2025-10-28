@@ -295,6 +295,34 @@ const Game = () => {
     return "✓";
   };
 
+  // Checkout suggestions for 501 mode
+  const getCheckoutSuggestions = (score: number): string[] => {
+    if (score > 170 || score <= 1) return [];
+    
+    const checkouts: Record<number, string[]> = {
+      2: ["D1"], 3: ["1, D1"], 4: ["D2"], 5: ["1, D2", "3, D1"],
+      6: ["D3"], 7: ["3, D2", "1, D3"], 8: ["D4"], 9: ["1, D4", "5, D2"],
+      10: ["D5"], 11: ["3, D4", "1, D5"], 12: ["D6"], 13: ["3, D5", "1, D6"],
+      14: ["D7"], 15: ["7, D4", "3, D6"], 16: ["D8"], 17: ["9, D4", "1, D8"],
+      18: ["D9"], 19: ["3, D8", "7, D6"], 20: ["D10"], 21: ["5, D8", "1, D10"],
+      22: ["D11"], 23: ["7, D8", "3, D10"], 24: ["D12"], 25: ["9, D8", "1, D12"],
+      26: ["D13"], 27: ["11, D8", "3, D12"], 28: ["D14"], 29: ["13, D8", "5, D12"],
+      30: ["D15"], 31: ["15, D8", "7, D12"], 32: ["D16"], 33: ["17, D8", "1, D16"],
+      34: ["D17"], 35: ["19, D8", "3, D16"], 36: ["D18"], 37: ["5, D16", "1, D18"],
+      38: ["D19"], 39: ["7, D16", "3, D18"], 40: ["D20"], 41: ["9, D16", "1, D20"],
+      50: ["Bull"], 51: ["19, D16", "11, D20"], 52: ["20, D16", "12, D20"],
+      60: ["20, D20"], 61: ["T15, D8", "25, D18"], 70: ["T10, D20", "18, D16"],
+      80: ["T20, D10", "T16, D16"], 90: ["T20, D15", "T18, D18"],
+      100: ["T20, D20"], 101: ["T17, Bull", "T20, 1, D20"],
+      110: ["T20, Bull", "T18, D20"], 120: ["T20, 20, D20"],
+      130: ["T20, T18, D8"], 140: ["T20, T20, D10"],
+      150: ["T20, T18, D18"], 160: ["T20, T20, D20"],
+      167: ["T20, T19, Bull"], 170: ["T20, T20, Bull"]
+    };
+    
+    return checkouts[score] || [];
+  };
+
   if (!currentPlayer) return null;
 
   const numbersToShow = gameMode === "cricket" 
@@ -384,6 +412,28 @@ const Game = () => {
             ))}
           </div>
         </Card>
+
+        {/* Checkout suggestions for 501 */}
+        {gameMode === "501" && currentPlayer.score <= 170 && currentPlayer.score > 1 && (
+          <Card className="p-3 bg-accent/10 border-accent">
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="w-4 h-4 text-accent" />
+              <div className="text-sm font-bold">Suggestions de finish</div>
+            </div>
+            <div className="space-y-1">
+              {getCheckoutSuggestions(currentPlayer.score).map((suggestion, idx) => (
+                <div key={idx} className="text-sm font-mono bg-background/50 px-2 py-1 rounded">
+                  {suggestion}
+                </div>
+              ))}
+              {getCheckoutSuggestions(currentPlayer.score).length === 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Score actuel: {currentPlayer.score}
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
 
         {/* Multiplier */}
         <div className="grid grid-cols-3 gap-2">
