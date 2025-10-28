@@ -38,6 +38,10 @@ const Game = () => {
   const [currentThrows, setCurrentThrows] = useState<{ base: number; mult: number }[]>([]);
   const [multiplier, setMultiplier] = useState(1);
   const [doubleOut, setDoubleOut] = useState(true);
+  const [previousTurnState, setPreviousTurnState] = useState<{
+    players: GamePlayer[];
+    playerIndex: number;
+  } | null>(null);
 
   // Initialize players once
   useEffect(() => {
@@ -90,6 +94,12 @@ const Game = () => {
   };
 
   const processTurn = (throws: { base: number; mult: number }[]) => {
+    // Save current state before processing turn
+    setPreviousTurnState({
+      players: JSON.parse(JSON.stringify(players)),
+      playerIndex: currentPlayerIndex,
+    });
+
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayerIndex];
 
@@ -189,9 +199,19 @@ const Game = () => {
 
   const undo = () => {
     if (dartCount > 0) {
+      // Undo current throw
       setCurrentThrows(currentThrows.slice(0, -1));
       setDartCount(dartCount - 1);
       setMultiplier(1);
+    } else if (previousTurnState) {
+      // Undo previous player's turn
+      setPlayers(previousTurnState.players);
+      setCurrentPlayerIndex(previousTurnState.playerIndex);
+      setDartCount(0);
+      setCurrentThrows([]);
+      setMultiplier(1);
+      setPreviousTurnState(null);
+      toast.info("Tour précédent annulé");
     }
   };
 
@@ -215,7 +235,7 @@ const Game = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-2xl font-bold capitalize">{gameMode}</h1>
-          <Button variant="ghost" size="sm" onClick={undo} disabled={dartCount === 0}>
+          <Button variant="ghost" size="sm" onClick={undo} disabled={dartCount === 0 && !previousTurnState}>
             <Undo2 className="w-5 h-5" />
           </Button>
         </div>
