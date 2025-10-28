@@ -69,53 +69,51 @@ const Players = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-background relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-primary/40 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/40 rounded-full blur-3xl" />
-      </div>
-
-      <div className="max-w-md mx-auto space-y-6 relative z-10">
-        <div className="flex items-center gap-4 animate-fade-in">
+    <div className="min-h-screen safe-top safe-bottom p-4 sm:p-6">
+      <div className="max-w-lg mx-auto space-y-6 animate-fade-in">
+        {/* Header */}
+        <div className="flex items-center gap-3 sm:gap-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/")}
-            className="shrink-0 hover:scale-110 transition-transform"
+            className="shrink-0"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </Button>
-          <h1 className="text-4xl font-bold tracking-wide">Sélection</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold">Sélection</h1>
         </div>
 
         {/* Selected Players */}
-        <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <h2 className="text-2xl font-bold text-primary tracking-wide flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            Joueurs sélectionnés ({selectedPlayers.length})
-          </h2>
+        <div className="space-y-3 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <h2 className="text-xl sm:text-2xl font-bold">
+              Joueurs ({selectedPlayers.length})
+            </h2>
+          </div>
+          
           {selectedPlayers.length === 0 ? (
-            <div className="text-muted-foreground text-center py-12 border-2 border-dashed border-border rounded-lg">
-              <p className="text-lg font-medium">Aucun joueur sélectionné</p>
-              <p className="text-sm mt-2">Ajoute au moins 2 joueurs pour commencer</p>
-            </div>
+            <Card className="p-8 sm:p-12 text-center border-2 border-dashed glass-card">
+              <p className="text-base sm:text-lg font-medium text-muted-foreground">Aucun joueur sélectionné</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2">Ajoute au moins 2 joueurs</p>
+            </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {selectedPlayers.map((player, index) => (
                 <Card
                   key={player.id}
-                  className="p-5 flex items-center justify-between bg-gradient-to-br from-card to-card/80 border-2 border-primary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] animate-fade-in"
+                  className="p-4 sm:p-5 flex items-center justify-between glass-card border-primary/30 shadow-lg animate-scale-in"
                   style={{ animationDelay: `${0.05 * index}s` }}
                 >
-                  <span className="font-bold text-xl tracking-wide">{player.name}</span>
+                  <span className="font-bold text-base sm:text-xl truncate pr-2">{player.name}</span>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removePlayer(player.id)}
-                    className="hover:bg-destructive/20 hover:text-destructive transition-colors"
+                    className="shrink-0 hover:text-destructive"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </Button>
                 </Card>
               ))}
@@ -124,48 +122,46 @@ const Players = () => {
         </div>
 
         {/* Add New Player */}
-        <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <h2 className="text-2xl font-bold text-secondary tracking-wide flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Nouveau joueur
-          </h2>
-          <div className="flex gap-3">
+        <div className="space-y-3 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-center gap-2">
+            <Plus className="w-5 h-5 text-secondary" />
+            <h2 className="text-xl sm:text-2xl font-bold">Nouveau joueur</h2>
+          </div>
+          <div className="flex gap-2 sm:gap-3">
             <Input
               placeholder="Nom du joueur"
               value={newPlayerName}
               onChange={(e) => setNewPlayerName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addNewPlayer()}
-              className="flex-1 h-14 text-lg font-medium border-2 focus:border-secondary transition-colors"
+              className="flex-1 h-12 sm:h-14 text-base glass-card border-2 focus:border-secondary"
             />
             <Button
               variant="secondary"
               size="icon"
               onClick={addNewPlayer}
-              className="h-14 w-14 hover:scale-110 transition-transform shadow-lg"
+              className="h-12 w-12 sm:h-14 sm:w-14 shrink-0"
             >
-              <Plus className="w-6 h-6" />
+              <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
           </div>
         </div>
 
         {/* Saved Players */}
         {savedPlayers.length > 0 && (
-          <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <h2 className="text-2xl font-bold text-accent tracking-wide">Joueurs enregistrés</h2>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-3 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <h2 className="text-xl sm:text-2xl font-bold text-accent">Enregistrés</h2>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {savedPlayers.map((player, index) => {
-                const isSelected = selectedPlayers.find(
-                  (p) => p.id === player.id
-                );
+                const isSelected = selectedPlayers.find((p) => p.id === player.id);
                 return (
                   <Button
                     key={player.id}
                     variant={isSelected ? "default" : "outline"}
-                    className="h-16 text-base font-semibold hover:scale-105 transition-all duration-300 animate-fade-in"
-                    style={{ animationDelay: `${0.35 + index * 0.03}s` }}
+                    className="h-auto py-3 sm:py-4 text-sm sm:text-base font-semibold animate-scale-in"
+                    style={{ animationDelay: `${0.35 + index * 0.02}s` }}
                     onClick={() => togglePlayer(player)}
                   >
-                    {player.name}
+                    <span className="truncate">{player.name}</span>
                   </Button>
                 );
               })}
@@ -173,17 +169,16 @@ const Players = () => {
           </div>
         )}
 
-        {/* Start Game Button */}
+        {/* Start Button */}
         <Button
-          variant="default"
-          size="xl"
-          className="w-full h-16 text-xl font-bold tracking-wide hover:scale-105 transition-all duration-300 shadow-xl glow-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 animate-fade-in"
+          size="lg"
+          className="w-full h-14 sm:h-16 text-base sm:text-lg font-bold animate-fade-in-up touch-manipulation"
           style={{ animationDelay: '0.4s' }}
           onClick={startGame}
           disabled={selectedPlayers.length < 2}
         >
-          <Play className="w-7 h-7 mr-3" />
-          Commencer la partie
+          <Play className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
+          Continuer
         </Button>
       </div>
     </div>

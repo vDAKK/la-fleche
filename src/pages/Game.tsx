@@ -373,32 +373,38 @@ const Game = () => {
     : allNumbers;
 
   return (
-    <div className="min-h-screen p-3 bg-background">
-      <div className="max-w-lg mx-auto space-y-3">
+    <div className="min-h-screen safe-top safe-bottom p-3 sm:p-4 bg-background">
+      <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4 animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+        <div className="flex items-center justify-between px-1">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl font-bold capitalize">{gameMode}</h1>
-          <Button variant="ghost" size="sm" onClick={undo} disabled={dartCount === 0 && !previousTurnState}>
+          <h1 className="text-2xl sm:text-3xl font-bold capitalize">{gameMode}</h1>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={undo} 
+            disabled={dartCount === 0 && !previousTurnState}
+            className="disabled:opacity-30"
+          >
             <Undo2 className="w-5 h-5" />
           </Button>
         </div>
 
-        {/* Scores */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Players Scores */}
+        <div className={`grid gap-2 sm:gap-3 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {players.map((player, idx) => (
             <Card
               key={player.id}
-              className={`p-3 ${
+              className={`p-3 sm:p-4 glass-card transition-all duration-300 ${
                 idx === currentPlayerIndex
-                  ? "border-2 border-primary bg-primary/10"
-                  : "border opacity-60"
+                  ? "border-2 border-primary bg-primary/10 shadow-lg glow-primary"
+                  : "border border-border/50 opacity-70"
               }`}
             >
-              <div className="font-bold text-sm truncate">{player.name}</div>
-              <div className="text-3xl font-bold text-primary mt-1">{player.score}</div>
+              <div className="font-bold text-xs sm:text-sm truncate mb-1">{player.name}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-primary">{player.score}</div>
 
               {/* Cricket marks */}
               {gameMode === "cricket" && player.cricketMarks && (
@@ -409,15 +415,15 @@ const Game = () => {
                     return (
                       <div
                         key={num}
-                        className={`text-[10px] p-1 rounded ${
+                        className={`text-[9px] sm:text-[10px] p-1 rounded-lg transition-colors ${
                           closed
-                            ? "bg-secondary text-secondary-foreground font-bold"
+                            ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground font-bold"
                             : marks > 0
-                            ? "bg-primary/20"
-                            : "bg-muted"
+                            ? "bg-primary/20 border border-primary/30"
+                            : "bg-muted/50"
                         }`}
                       >
-                        <div>{num === 50 ? "B" : num}</div>
+                        <div className="font-semibold">{num}</div>
                         <div className="font-bold">{getMarkSymbol(marks)}</div>
                       </div>
                     );
@@ -427,27 +433,31 @@ const Game = () => {
 
               {/* Lives */}
               {gameMode === "sudden-death" && (
-                <div className="mt-2 text-sm">❤️ {player.lives}</div>
+                <div className="mt-2 text-sm flex items-center gap-1">
+                  {Array.from({ length: player.lives || 0 }).map((_, i) => (
+                    <span key={i} className="text-lg">❤️</span>
+                  ))}
+                </div>
               )}
             </Card>
           ))}
         </div>
 
         {/* Current turn */}
-        <Card className="p-3">
-          <div className="text-center text-sm font-bold mb-2">
-            {currentPlayer.name} - Lancer {dartCount + 1}/3
+        <Card className="p-4 sm:p-5 glass-card border-primary/20">
+          <div className="text-center text-sm sm:text-base font-bold mb-3">
+            <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
           </div>
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-2 sm:gap-3">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className={`w-14 h-14 rounded border-2 flex items-center justify-center text-lg font-bold ${
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 flex items-center justify-center text-lg sm:text-xl font-bold transition-all ${
                   i < dartCount
-                    ? "bg-secondary border-secondary"
+                    ? "bg-gradient-to-br from-secondary to-secondary/80 border-secondary shadow-lg"
                     : i === dartCount
-                    ? "bg-primary/20 border-primary"
-                    : "bg-muted border-muted"
+                    ? "bg-primary/20 border-primary animate-pulse"
+                    : "bg-muted/30 border-muted"
                 }`}
               >
                 {currentThrows[i] ? currentThrows[i].base * currentThrows[i].mult : ""}
@@ -458,34 +468,32 @@ const Game = () => {
 
         {/* Checkout suggestions for 501 */}
         {gameMode === "501" && currentPlayer.score <= 170 && currentPlayer.score > 1 && (
-          <Card className="p-3 bg-accent/10 border-accent">
-            <div className="flex items-center gap-2 mb-2">
+          <Card className="p-4 glass-card bg-accent/10 border-accent/30 animate-scale-in">
+            <div className="flex items-center gap-2 mb-3">
               <Target className="w-4 h-4 text-accent" />
               <div className="text-sm font-bold">Suggestions de finish</div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {getCheckoutSuggestions(currentPlayer.score).map((suggestion, idx) => (
-                <div key={idx} className="text-sm font-mono bg-background/50 px-2 py-1 rounded">
+                <div key={idx} className="text-xs sm:text-sm font-mono bg-background/60 px-3 py-2 rounded-xl border border-accent/20">
                   {suggestion}
                 </div>
               ))}
-              {getCheckoutSuggestions(currentPlayer.score).length === 0 && (
-                <div className="text-xs text-muted-foreground">
-                  Score actuel: {currentPlayer.score}
-                </div>
-              )}
             </div>
           </Card>
         )}
 
         {/* Multiplier */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {[1, 2, 3].map((m) => (
             <Button
               key={m}
               variant={multiplier === m ? "default" : "outline"}
-              size="sm"
+              size="lg"
               onClick={() => setMultiplier(m)}
+              className={`font-bold transition-all touch-manipulation ${
+                multiplier === m ? "scale-105" : ""
+              }`}
             >
               {m === 1 ? "Simple" : m === 2 ? "Double" : "Triple"}
             </Button>
@@ -493,21 +501,20 @@ const Game = () => {
         </div>
 
         {/* Number pad */}
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
           {numbersToShow.map((num) => (
             <Button
               key={num}
-              variant="secondary"
-              size="sm"
+              variant="score"
               onClick={() => handleScore(num)}
               disabled={num === 25 && multiplier === 3}
-              className={`h-12 text-base font-bold ${
-                num === 25 || num === 50 ? "col-span-2" : ""
+              className={`h-14 sm:h-16 text-base sm:text-lg font-bold transition-all touch-manipulation ${
+                num === 25 ? "col-span-2" : ""
               } ${
                 multiplier === 2
-                  ? "ring-2 ring-accent"
+                  ? "ring-2 ring-accent shadow-[0_0_15px_hsl(var(--accent)/0.3)]"
                   : multiplier === 3
-                  ? "ring-2 ring-secondary"
+                  ? "ring-2 ring-secondary shadow-[0_0_15px_hsl(var(--secondary)/0.3)]"
                   : ""
               }`}
             >
@@ -519,114 +526,106 @@ const Game = () => {
 
       {/* Victory Dialog */}
       <Dialog open={showVictoryDialog} onOpenChange={setShowVictoryDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md glass-card border-primary/30">
           <DialogHeader>
-            <DialogTitle className="text-center text-3xl font-bold">
-              <Trophy className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
-              🏆 Victoire !
+            <DialogTitle className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary mb-4 animate-float">
+                <Trophy className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gradient-primary mb-2">
+                Victoire !
+              </h2>
+              <p className="text-xl sm:text-2xl font-bold">{winner?.name}</p>
+              <p className="text-sm text-muted-foreground mt-1">a remporté la partie</p>
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-6">
-            {/* Winner */}
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-primary mb-2">
-                {winner?.name}
-              </h2>
-              <p className="text-muted-foreground">a remporté la partie !</p>
+          <div className="space-y-4 mt-4">
+            {/* Statistics */}
+            <div className="space-y-3">
+              {players.map((player) => (
+                <Card 
+                  key={player.id}
+                  className={`p-4 glass-card ${
+                    player.id === winner?.id 
+                      ? "border-2 border-primary glow-primary" 
+                      : "border-border/50"
+                  }`}
+                >
+                  <div className="font-bold mb-3">{player.name}</div>
+                  <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                    {gameMode === "501" && (
+                      <>
+                        <div>
+                          <div className="text-muted-foreground">Score final</div>
+                          <div className="font-bold text-lg">{player.score}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Moyenne</div>
+                          <div className="font-bold text-lg">
+                            {player.turnsPlayed && player.totalThrown
+                              ? Math.round(player.totalThrown / player.turnsPlayed)
+                              : 0}
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <div className="text-muted-foreground">Tours joués</div>
+                          <div className="font-bold">{player.turnsPlayed || 0}</div>
+                        </div>
+                      </>
+                    )}
+                    
+                    {gameMode === "cricket" && (
+                      <>
+                        <div>
+                          <div className="text-muted-foreground">Score</div>
+                          <div className="font-bold text-lg">{player.score}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Fermés</div>
+                          <div className="font-bold text-lg">
+                            {player.cricketMarks 
+                              ? Object.values(player.cricketMarks).filter(m => m >= 3).length
+                              : 0} / {cricketNumbers.length}
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <div className="text-muted-foreground">Tours joués</div>
+                          <div className="font-bold">{player.turnsPlayed || 0}</div>
+                        </div>
+                      </>
+                    )}
+                    
+                    {gameMode === "sudden-death" && (
+                      <>
+                        <div>
+                          <div className="text-muted-foreground">Score total</div>
+                          <div className="font-bold text-lg">{player.score}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Moyenne</div>
+                          <div className="font-bold text-lg">
+                            {player.turnsPlayed && player.totalThrown
+                              ? Math.round(player.totalThrown / player.turnsPlayed)
+                              : 0}
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <div className="text-muted-foreground">Tours</div>
+                          <div className="font-bold">{player.turnsPlayed || 0}</div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </Card>
+              ))}
             </div>
 
-            {/* Statistics */}
-            <Card className="p-4 space-y-4">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Statistiques
-              </h3>
-              
-              <div className="space-y-3">
-                {players.map((player) => (
-                  <div 
-                    key={player.id}
-                    className={`p-3 rounded-lg ${
-                      player.id === winner?.id 
-                        ? "bg-primary/20 border-2 border-primary" 
-                        : "bg-muted"
-                    }`}
-                  >
-                    <div className="font-bold mb-2">{player.name}</div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {gameMode === "501" && (
-                        <>
-                          <div>
-                            <div className="text-muted-foreground">Score final</div>
-                            <div className="font-bold">{player.score}</div>
-                          </div>
-                          <div>
-                            <div className="text-muted-foreground">Moyenne</div>
-                            <div className="font-bold">
-                              {player.turnsPlayed && player.totalThrown
-                                ? Math.round(player.totalThrown / player.turnsPlayed)
-                                : 0}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-muted-foreground">Tours joués</div>
-                            <div className="font-bold">{player.turnsPlayed || 0}</div>
-                          </div>
-                        </>
-                      )}
-                      
-                      {gameMode === "cricket" && (
-                        <>
-                          <div>
-                            <div className="text-muted-foreground">Score</div>
-                            <div className="font-bold">{player.score}</div>
-                          </div>
-                          <div>
-                            <div className="text-muted-foreground">Numéros fermés</div>
-                            <div className="font-bold">
-                              {player.cricketMarks 
-                                ? Object.values(player.cricketMarks).filter(m => m >= 3).length
-                                : 0} / {cricketNumbers.length}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-muted-foreground">Tours joués</div>
-                            <div className="font-bold">{player.turnsPlayed || 0}</div>
-                          </div>
-                        </>
-                      )}
-                      
-                      {gameMode === "sudden-death" && (
-                        <>
-                          <div>
-                            <div className="text-muted-foreground">Score total</div>
-                            <div className="font-bold">{player.score}</div>
-                          </div>
-                          <div>
-                            <div className="text-muted-foreground">Moyenne/tour</div>
-                            <div className="font-bold">
-                              {player.turnsPlayed && player.totalThrown
-                                ? Math.round(player.totalThrown / player.turnsPlayed)
-                                : 0}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-muted-foreground">Tours survécus</div>
-                            <div className="font-bold">{player.turnsPlayed || 0}</div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
+                size="lg"
                 className="flex-1"
                 onClick={() => {
                   setShowVictoryDialog(false);
@@ -636,10 +635,11 @@ const Game = () => {
                 Continuer
               </Button>
               <Button
+                size="lg"
                 className="flex-1"
                 onClick={() => navigate("/")}
               >
-                Menu principal
+                Menu
               </Button>
             </div>
           </div>
