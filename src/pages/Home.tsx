@@ -27,9 +27,14 @@ const Home = () => {
   }, []);
 
   const resumeGame = () => {
-    if (savedGame?.path) {
-      navigate(savedGame.path);
+    const base = import.meta.env.BASE_URL || "/";
+    let target = savedGame?.route ?? savedGame?.path;
+    if (!target) return;
+    // If saved path contains the basename, strip it to avoid duplication
+    if (base !== "/" && target.startsWith(base)) {
+      target = target.replace(base, "/");
     }
+    navigate(target);
   };
 
   const deleteSavedGame = () => {

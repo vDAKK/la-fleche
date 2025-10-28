@@ -65,6 +65,9 @@ const Game = () => {
         configStartScore,
         configCricketMode,
         configDoubleOut,
+        // Relative route (respects Router basename)
+        route: (window.location.pathname + window.location.search).replace(import.meta.env.BASE_URL, "/"),
+        // Absolute path for backward compatibility
         path: window.location.pathname + window.location.search,
         timestamp: Date.now(),
       };
@@ -88,7 +91,8 @@ const Game = () => {
         const state = JSON.parse(savedGame);
         // Only restore if it's the same game (matching URL params)
         const currentPath = window.location.pathname + window.location.search;
-        if (state.path === currentPath) {
+        const currentRoute = currentPath.replace(import.meta.env.BASE_URL, "/");
+        if ((state.route && state.route === currentRoute) || state.path === currentPath) {
           setPlayers(state.players);
           setCurrentPlayerIndex(state.currentPlayerIndex);
           setDartCount(state.dartCount);
