@@ -415,12 +415,14 @@ const Game = () => {
                     return (
                       <div
                         key={num}
-                        className={`text-[9px] sm:text-[10px] p-1 rounded-lg transition-colors ${
-                          closed
-                            ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground font-bold"
-                            : marks > 0
-                            ? "bg-primary/20 border border-primary/30"
-                            : "bg-muted/50"
+                        className={`text-[9px] sm:text-[10px] p-1 rounded-lg transition-all duration-300 ${
+                          marks === 0
+                            ? "bg-muted/30 text-muted-foreground border border-border/30"
+                            : marks === 1
+                            ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
+                            : marks === 2
+                            ? "bg-orange-500/25 text-orange-300 border border-orange-500/50 shadow-md"
+                            : "bg-primary/25 text-primary border-2 border-primary/60 shadow-lg shadow-primary/20 font-bold"
                         }`}
                       >
                         <div className="font-semibold">{num}</div>
@@ -502,25 +504,48 @@ const Game = () => {
 
         {/* Number pad */}
         <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
-          {numbersToShow.map((num) => (
-            <Button
-              key={num}
-              variant="score"
-              onClick={() => handleScore(num)}
-              disabled={num === 25 && multiplier === 3}
-              className={`h-14 sm:h-16 text-base sm:text-lg font-bold transition-all touch-manipulation ${
-                num === 25 ? "col-span-2" : ""
-              } ${
-                multiplier === 2
-                  ? "ring-2 ring-accent shadow-[0_0_15px_hsl(var(--accent)/0.3)]"
-                  : multiplier === 3
-                  ? "ring-2 ring-secondary shadow-[0_0_15px_hsl(var(--secondary)/0.3)]"
-                  : ""
-              }`}
-            >
-              {num}
-            </Button>
-          ))}
+          {numbersToShow.map((num) => {
+            const currentMarks = gameMode === "cricket" && currentPlayer.cricketMarks 
+              ? currentPlayer.cricketMarks[num] || 0 
+              : 0;
+            
+            return (
+              <Button
+                key={num}
+                variant="score"
+                onClick={() => handleScore(num)}
+                disabled={num === 25 && multiplier === 3}
+                className={`h-14 sm:h-16 text-base sm:text-lg font-bold transition-all touch-manipulation relative ${
+                  num === 25 ? "col-span-2" : ""
+                } ${
+                  multiplier === 2
+                    ? "ring-2 ring-accent shadow-[0_0_15px_hsl(var(--accent)/0.3)]"
+                    : multiplier === 3
+                    ? "ring-2 ring-secondary shadow-[0_0_15px_hsl(var(--secondary)/0.3)]"
+                    : ""
+                } ${
+                  gameMode === "cricket" && currentMarks === 1
+                    ? "border-yellow-500/50 bg-yellow-500/10"
+                    : gameMode === "cricket" && currentMarks === 2
+                    ? "border-orange-500/50 bg-orange-500/10"
+                    : gameMode === "cricket" && currentMarks >= 3
+                    ? "border-primary/60 bg-primary/15"
+                    : ""
+                }`}
+              >
+                {gameMode === "cricket" && currentMarks > 0 && (
+                  <div className={`absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full ${
+                    currentMarks === 1 
+                      ? "bg-yellow-500" 
+                      : currentMarks === 2 
+                      ? "bg-orange-500" 
+                      : "bg-primary"
+                  }`} />
+                )}
+                {num}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
