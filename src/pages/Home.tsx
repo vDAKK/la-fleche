@@ -27,8 +27,8 @@ const Home = () => {
   }, []);
 
   const resumeGame = () => {
-    if (savedGame?.url) {
-      navigate(savedGame.url.replace(window.location.origin, ""));
+    if (savedGame?.path) {
+      navigate(savedGame.path);
     }
   };
 

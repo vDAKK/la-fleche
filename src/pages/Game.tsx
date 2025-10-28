@@ -65,7 +65,7 @@ const Game = () => {
         configStartScore,
         configCricketMode,
         configDoubleOut,
-        url: window.location.href,
+        path: window.location.pathname + window.location.search,
         timestamp: Date.now(),
       };
       localStorage.setItem("darts-game-in-progress", JSON.stringify(gameState));
@@ -87,7 +87,8 @@ const Game = () => {
       try {
         const state = JSON.parse(savedGame);
         // Only restore if it's the same game (matching URL params)
-        if (state.url === window.location.href) {
+        const currentPath = window.location.pathname + window.location.search;
+        if (state.path === currentPath) {
           setPlayers(state.players);
           setCurrentPlayerIndex(state.currentPlayerIndex);
           setDartCount(state.dartCount);
