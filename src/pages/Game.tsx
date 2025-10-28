@@ -27,6 +27,12 @@ interface GamePlayer extends Player {
   cricketHits?: CricketHits;
 }
 
+interface ThrowData {
+  baseScore: number;
+  multiplier: number;
+  totalScore: number;
+}
+
 const Game = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -36,7 +42,7 @@ const Game = () => {
   const [players, setPlayers] = useState<GamePlayer[]>([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [currentThrow, setCurrentThrow] = useState(0);
-  const [throwsThisTurn, setThrowsThisTurn] = useState<number[]>([]);
+  const [throwsThisTurn, setThrowsThisTurn] = useState<ThrowData[]>([]);
   const [selectedMultiplier, setSelectedMultiplier] = useState(1);
 
   useEffect(() => {
@@ -113,14 +119,15 @@ const Game = () => {
 
   const addScore = (baseScore: number) => {
     const totalScore = baseScore * selectedMultiplier;
+    const throwData: ThrowData = { baseScore, multiplier: selectedMultiplier, totalScore };
     
-    const newThrows = [...throwsThisTurn, totalScore];
+    const newThrows = [...throwsThisTurn, throwData];
     setThrowsThisTurn(newThrows);
     setCurrentThrow(currentThrow + 1);
 
     if (currentThrow + 1 >= 3) {
       // Turn complete
-      const turnTotal = newThrows.reduce((a, b) => a + b, 0);
+      const turnTotal = newThrows.reduce((a, b) => a + b.totalScore, 0);
       
       const updatedPlayers = [...players];
       const player = updatedPlayers[currentPlayerIndex];
@@ -134,22 +141,27 @@ const Game = () => {
         }
       } else if (gameMode === "cricket") {
         // Cricket logic: track hits and score points
-        newThrows.forEach((throwScore) => {
-          const number = throwScore as keyof CricketHits;
+        newThrows.forEach((throwData) => {
+          const number = throwData.baseScore as keyof CricketHits;
           if (player.cricketHits && player.cricketHits[number] !== undefined) {
             const currentHits = player.cricketHits[number];
+            const hitsToAdd = throwData.multiplier;
             
             // Check if all other players have closed this number
             const allOthersClosed = updatedPlayers
               .filter((_, idx) => idx !== currentPlayerIndex)
               .every((p) => p.cricketHits && p.cricketHits[number] >= 3);
             
-            if (currentHits >= 3 && !allOthersClosed) {
-              // Number is closed for this player, add points
-              player.score += throwScore;
-            } else if (currentHits < 3) {
-              // Still opening the number
-              player.cricketHits[number] = Math.min(currentHits + 1, 3);
+            // Calculate how many hits close the number and how many are extra
+            const hitsNeededToClose = Math.max(0, 3 - currentHits);
+            const extraHits = Math.max(0, hitsToAdd - hitsNeededToClose);
+            
+            // Add hits (max 3)
+            player.cricketHits[number] = Math.min(currentHits + hitsToAdd, 3);
+            
+            // If there are extra hits and not all others have closed, score points
+            if (extraHits > 0 && !allOthersClosed) {
+              player.score += number * extraHits;
             }
           }
         });
@@ -318,10 +330,10 @@ const Game = () => {
                       ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground border-secondary shadow-lg glow-secondary scale-105"
                       : i === currentThrow
                       ? "bg-primary/20 border-primary animate-pulse ring-2 ring-primary/50"
-                      : "bg-muted/50 border-border/50"
+                    : "bg-muted/50 border-border/50"
                   }`}
                 >
-                  {i < throwsThisTurn.length ? throwsThisTurn[i] : ""}
+                  {i < throwsThisTurn.length ? throwsThisTurn[i].totalScore : ""}
                 </div>
               ))}
             </div>
