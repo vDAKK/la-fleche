@@ -18,6 +18,15 @@ const GameConfig = () => {
   const [cricketMode, setCricketMode] = useState<"classic" | "random">("classic");
   const [doubleOut, setDoubleOut] = useState(true);
 
+  const getGameModeName = (mode: string) => {
+    const names: Record<string, string> = {
+      "cricket": "Cricket",
+      "501": "501",
+      "sudden-death": "Mort Subite"
+    };
+    return names[mode] || mode;
+  };
+
   const startGame = () => {
     if (!players) {
       toast.error("Aucun joueur sélectionné");
@@ -54,7 +63,7 @@ const GameConfig = () => {
         {/* Config Card */}
         <Card className="p-6 sm:p-8 space-y-6 glass-card border-primary/20 shadow-xl animate-scale-in">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-bold capitalize">{mode}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold">{getGameModeName(mode)}</h2>
             <p className="text-sm text-muted-foreground">
               Configure les paramètres
             </p>

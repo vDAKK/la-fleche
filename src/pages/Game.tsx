@@ -367,6 +367,15 @@ const Game = () => {
     return checkouts[score] || [`Aucune combinaison standard pour ${score}`];
   };
 
+  const getGameModeName = (mode: string) => {
+    const names: Record<string, string> = {
+      "cricket": "Cricket",
+      "501": "501",
+      "sudden-death": "Mort Subite"
+    };
+    return names[mode] || mode;
+  };
+
   if (!currentPlayer) return null;
 
   const numbersToShow = gameMode === "cricket" 
@@ -381,7 +390,7 @@ const Game = () => {
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl sm:text-3xl font-bold capitalize">{gameMode}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">{getGameModeName(gameMode)}</h1>
           <Button 
             variant="ghost" 
             size="icon" 
