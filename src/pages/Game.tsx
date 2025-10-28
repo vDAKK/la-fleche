@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, Undo2, Trophy, TrendingUp, Target } from "lucide-react";
 import { toast } from "sonner";
@@ -393,57 +394,59 @@ const Game = () => {
         </div>
 
         {/* Players Scores */}
-        <div className={`grid gap-2 sm:gap-3 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-          {players.map((player, idx) => (
-            <Card
-              key={player.id}
-              className={`p-3 sm:p-4 glass-card transition-all duration-300 ${
-                idx === currentPlayerIndex
-                  ? "border-2 border-primary bg-primary/10 shadow-lg glow-primary"
-                  : "border border-border/50 opacity-70"
-              }`}
-            >
-              <div className="font-bold text-xs sm:text-sm truncate mb-1">{player.name}</div>
-              <div className="text-2xl sm:text-3xl font-bold text-primary">{player.score}</div>
+        <ScrollArea className="max-h-[35vh]">
+          <div className={`grid gap-2 pr-2 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+            {players.map((player, idx) => (
+              <Card
+                key={player.id}
+                className={`p-2 sm:p-3 glass-card transition-all duration-300 ${
+                  idx === currentPlayerIndex
+                    ? "border-2 border-primary bg-primary/10 shadow-lg glow-primary"
+                    : "border border-border/50 opacity-70"
+                }`}
+              >
+                <div className="font-bold text-xs truncate mb-1">{player.name}</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">{player.score}</div>
 
-              {/* Cricket marks */}
-              {gameMode === "cricket" && player.cricketMarks && (
-                <div className="mt-2 grid grid-cols-4 gap-1">
-                  {cricketNumbers.map((num) => {
-                    const marks = player.cricketMarks![num] || 0;
-                    const closed = marks >= 3;
-                    return (
-                      <div
-                        key={num}
-                        className={`text-[9px] sm:text-[10px] p-1 rounded-lg transition-all duration-300 ${
-                          marks === 0
-                            ? "bg-muted/30 text-muted-foreground border border-border/30"
-                            : marks === 1
-                            ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
-                            : marks === 2
-                            ? "bg-orange-500/25 text-orange-300 border border-orange-500/50 shadow-md"
-                            : "bg-primary/25 text-primary border-2 border-primary/60 shadow-lg shadow-primary/20 font-bold"
-                        }`}
-                      >
-                        <div className="font-semibold">{num}</div>
-                        <div className="font-bold">{getMarkSymbol(marks)}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                {/* Cricket marks */}
+                {gameMode === "cricket" && player.cricketMarks && (
+                  <div className="mt-1.5 grid grid-cols-4 gap-0.5">
+                    {cricketNumbers.map((num) => {
+                      const marks = player.cricketMarks![num] || 0;
+                      const closed = marks >= 3;
+                      return (
+                        <div
+                          key={num}
+                          className={`text-[8px] sm:text-[9px] p-0.5 rounded transition-all duration-300 ${
+                            marks === 0
+                              ? "bg-muted/30 text-muted-foreground border border-border/30"
+                              : marks === 1
+                              ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
+                              : marks === 2
+                              ? "bg-orange-500/25 text-orange-300 border border-orange-500/50 shadow-md"
+                              : "bg-primary/25 text-primary border-2 border-primary/60 shadow-lg shadow-primary/20 font-bold"
+                          }`}
+                        >
+                          <div className="font-semibold">{num}</div>
+                          <div className="text-[9px] font-bold">{getMarkSymbol(marks)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-              {/* Lives */}
-              {gameMode === "sudden-death" && (
-                <div className="mt-2 text-sm flex items-center gap-1">
-                  {Array.from({ length: player.lives || 0 }).map((_, i) => (
-                    <span key={i} className="text-lg">❤️</span>
-                  ))}
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
+                {/* Lives */}
+                {gameMode === "sudden-death" && (
+                  <div className="mt-2 text-sm flex items-center gap-1">
+                    {Array.from({ length: player.lives || 0 }).map((_, i) => (
+                      <span key={i} className="text-lg">❤️</span>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
 
         {/* Current turn */}
         <Card className="p-4 sm:p-5 glass-card border-primary/20">
