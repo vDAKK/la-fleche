@@ -133,21 +133,42 @@ const Game = () => {
           return;
         }
       } else if (gameMode === "cricket") {
-        // Cricket logic: track hits on each number
+        // Cricket logic: track hits and score points
         newThrows.forEach((throwScore) => {
           const number = throwScore as keyof CricketHits;
           if (player.cricketHits && player.cricketHits[number] !== undefined) {
-            player.cricketHits[number] = Math.min(player.cricketHits[number] + 1, 3);
+            const currentHits = player.cricketHits[number];
+            
+            // Check if all other players have closed this number
+            const allOthersClosed = updatedPlayers
+              .filter((_, idx) => idx !== currentPlayerIndex)
+              .every((p) => p.cricketHits && p.cricketHits[number] >= 3);
+            
+            if (currentHits >= 3 && !allOthersClosed) {
+              // Number is closed for this player, add points
+              player.score += throwScore;
+            } else if (currentHits < 3) {
+              // Still opening the number
+              player.cricketHits[number] = Math.min(currentHits + 1, 3);
+            }
           }
         });
         
-        // Check if player won (all numbers closed)
+        // Check if player won (all numbers closed + highest score)
         if (player.cricketHits) {
           const allClosed = Object.values(player.cricketHits).every(hits => hits >= 3);
           if (allClosed) {
-            toast.success(`🏆 ${player.name} a gagné!`);
-            setTimeout(() => navigate("/"), 2000);
-            return;
+            const isWinner = updatedPlayers.every((p, idx) => {
+              if (idx === currentPlayerIndex) return true;
+              const pAllClosed = p.cricketHits && Object.values(p.cricketHits).every(hits => hits >= 3);
+              return !pAllClosed || player.score >= p.score;
+            });
+            
+            if (isWinner) {
+              toast.success(`🏆 ${player.name} a gagné!`);
+              setTimeout(() => navigate("/"), 2000);
+              return;
+            }
           }
         }
       } else {
@@ -179,7 +200,11 @@ const Game = () => {
     if (hits === 0) return "";
     if (hits === 1) return "/";
     if (hits === 2) return "X";
-    return "⊗";
+    return "✓";
+  };
+
+  const isNumberClosedByAll = (number: keyof CricketHits) => {
+    return players.every((p) => p.cricketHits && p.cricketHits[number] >= 3);
   };
 
   const gameRules = {
@@ -239,21 +264,31 @@ const Game = () => {
               {/* Cricket Progress */}
               {gameMode === "cricket" && player.cricketHits && (
                 <div className="mt-3 grid grid-cols-4 gap-1 text-xs">
-                  {[15, 16, 17, 18, 19, 20, 25, 50].map((num) => (
-                    <div
-                      key={num}
-                      className={`p-1 rounded ${
-                        player.cricketHits![num as keyof CricketHits] >= 3
-                          ? "bg-secondary text-secondary-foreground font-bold"
-                          : "bg-muted"
-                      }`}
-                    >
-                      <div className="text-[10px]">{num === 50 ? "B" : num}</div>
-                      <div className="font-bold">
-                        {getHitSymbol(player.cricketHits[num as keyof CricketHits])}
+                  {[15, 16, 17, 18, 19, 20, 25, 50].map((num) => {
+                    const hits = player.cricketHits![num as keyof CricketHits];
+                    const isClosed = hits >= 3;
+                    const isClosedByAll = isNumberClosedByAll(num as keyof CricketHits);
+                    
+                    return (
+                      <div
+                        key={num}
+                        className={`p-1 rounded transition-all ${
+                          isClosedByAll
+                            ? "bg-muted/50 opacity-50 line-through"
+                            : isClosed
+                            ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground font-bold shadow-lg ring-2 ring-secondary/50"
+                            : hits > 0
+                            ? "bg-primary/20 border border-primary/40"
+                            : "bg-muted"
+                        }`}
+                      >
+                        <div className="text-[10px] font-semibold">{num === 50 ? "B" : num}</div>
+                        <div className="font-bold text-sm">
+                          {getHitSymbol(hits)}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </Card>
