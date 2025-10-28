@@ -25,6 +25,7 @@ const Game = () => {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [currentThrow, setCurrentThrow] = useState(0);
   const [throwsThisTurn, setThrowsThisTurn] = useState<number[]>([]);
+  const [selectedMultiplier, setSelectedMultiplier] = useState(1);
 
   useEffect(() => {
     const stored = localStorage.getItem("darts-players");
@@ -51,40 +52,52 @@ const Game = () => {
 
   const currentPlayer = players[currentPlayerIndex];
 
-  const scoreButtons = [
-    { label: "0", value: 0 },
-    { label: "1", value: 1 },
-    { label: "2", value: 2 },
-    { label: "3", value: 3 },
-    { label: "4", value: 4 },
-    { label: "5", value: 5 },
-    { label: "6", value: 6 },
-    { label: "7", value: 7 },
-    { label: "8", value: 8 },
-    { label: "9", value: 9 },
-    { label: "10", value: 10 },
-    { label: "11", value: 11 },
-    { label: "12", value: 12 },
-    { label: "13", value: 13 },
-    { label: "14", value: 14 },
-    { label: "15", value: 15 },
-    { label: "16", value: 16 },
-    { label: "17", value: 17 },
-    { label: "18", value: 18 },
-    { label: "19", value: 19 },
-    { label: "20", value: 20 },
-    { label: "25", value: 25 },
-    { label: "Bull", value: 50 },
-  ];
+  // Score buttons depend on game mode
+  const scoreButtons = gameMode === "cricket" 
+    ? [
+        { label: "15", value: 15 },
+        { label: "16", value: 16 },
+        { label: "17", value: 17 },
+        { label: "18", value: 18 },
+        { label: "19", value: 19 },
+        { label: "20", value: 20 },
+        { label: "25", value: 25 },
+        { label: "Bull", value: 50 },
+      ]
+    : [
+        { label: "0", value: 0 },
+        { label: "1", value: 1 },
+        { label: "2", value: 2 },
+        { label: "3", value: 3 },
+        { label: "4", value: 4 },
+        { label: "5", value: 5 },
+        { label: "6", value: 6 },
+        { label: "7", value: 7 },
+        { label: "8", value: 8 },
+        { label: "9", value: 9 },
+        { label: "10", value: 10 },
+        { label: "11", value: 11 },
+        { label: "12", value: 12 },
+        { label: "13", value: 13 },
+        { label: "14", value: 14 },
+        { label: "15", value: 15 },
+        { label: "16", value: 16 },
+        { label: "17", value: 17 },
+        { label: "18", value: 18 },
+        { label: "19", value: 19 },
+        { label: "20", value: 20 },
+        { label: "25", value: 25 },
+        { label: "Bull", value: 50 },
+      ];
 
   const multiplierButtons = [
-    { label: "×1", multiplier: 1 },
-    { label: "×2", multiplier: 2 },
-    { label: "×3", multiplier: 3 },
+    { label: "Simple", multiplier: 1 },
+    { label: "Double", multiplier: 2 },
+    { label: "Triple", multiplier: 3 },
   ];
 
-  const addScore = (baseScore: number, multiplier: number = 1) => {
-    const totalScore = baseScore * multiplier;
+  const addScore = (baseScore: number) => {
+    const totalScore = baseScore * selectedMultiplier;
     
     const newThrows = [...throwsThisTurn, totalScore];
     setThrowsThisTurn(newThrows);
@@ -115,6 +128,10 @@ const Game = () => {
       setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
       setCurrentThrow(0);
       setThrowsThisTurn([]);
+      setSelectedMultiplier(1); // Reset multiplier for next player
+    } else {
+      // Reset multiplier after each throw
+      setSelectedMultiplier(1);
     }
   };
 
@@ -194,33 +211,39 @@ const Game = () => {
           </div>
         </Card>
 
-        {/* Multiplier Buttons */}
-        <div className="grid grid-cols-3 gap-2">
-          {multiplierButtons.map((btn) => (
-            <Button
-              key={btn.label}
-              variant="secondary"
-              size="lg"
-              onClick={() => {
-                // Store multiplier for next base score click
-                const lastBase = 20; // You can enhance this to remember last clicked base
-                addScore(lastBase, btn.multiplier);
-              }}
-              className="text-xl"
-            >
-              {btn.label}
-            </Button>
-          ))}
-        </div>
+        {/* Multiplier Selection */}
+        <Card className="p-4 bg-card border-2 border-accent/30">
+          <div className="text-center mb-3">
+            <span className="text-sm font-bold text-muted-foreground">
+              Multiplicateur sélectionné
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {multiplierButtons.map((btn) => (
+              <Button
+                key={btn.label}
+                variant={selectedMultiplier === btn.multiplier ? "default" : "outline"}
+                size="lg"
+                onClick={() => setSelectedMultiplier(btn.multiplier)}
+                className="text-base font-bold"
+              >
+                {btn.label}
+              </Button>
+            ))}
+          </div>
+        </Card>
 
         {/* Score Pad */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className={`grid gap-2 ${gameMode === "cricket" ? "grid-cols-4" : "grid-cols-4"}`}>
           {scoreButtons.map((btn) => (
             <Button
               key={btn.label}
               variant="score"
-              onClick={() => addScore(btn.value, 1)}
-              className={btn.label === "Bull" ? "col-span-2" : ""}
+              onClick={() => addScore(btn.value)}
+              className={`${btn.label === "Bull" ? "col-span-2" : ""} ${
+                selectedMultiplier === 2 ? "ring-2 ring-accent" : 
+                selectedMultiplier === 3 ? "ring-2 ring-secondary" : ""
+              }`}
             >
               {btn.label}
             </Button>
