@@ -442,6 +442,18 @@ const Game = () => {
     ? [0, ...cricketNumbers] // Include 0 for missed throws
     : allNumbers;
 
+  const getScoresHeightClass = () => {
+    if (gameMode === "cricket") {
+      if (players.length <= 2) return "h-[24vh] sm:h-[28vh]";
+      if (players.length === 3) return "h-[34vh] sm:h-[38vh]";
+      return "h-[40vh] sm:h-[45vh]"; // 4+ joueurs: hauteur max
+    }
+    // 501 & sudden-death: cartes plus compactes
+    if (players.length <= 2) return "h-[16vh] sm:h-[20vh]";
+    if (players.length === 3) return "h-[22vh] sm:h-[26vh]";
+    return "h-[28vh] sm:h-[30vh]"; // 4+ joueurs
+  };
+
   return (
     <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-hidden">
       <div className="flex-1 overflow-hidden overscroll-none p-3 sm:p-4 flex flex-col">
@@ -464,11 +476,7 @@ const Game = () => {
         </div>
 
         {/* Players Scores */}
-        <ScrollArea className={`overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 bg-background/50 p-2 ${
-          gameMode === "cricket" 
-            ? "max-h-[40vh] sm:max-h-[45vh]" 
-            : "max-h-[25vh] sm:max-h-[30vh]"
-        }`}>
+        <ScrollArea className={`overflow-auto overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 bg-background/50 p-2 ${getScoresHeightClass()}`}>
           <div className={`grid gap-2 pb-2 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
             {players.map((player, idx) => (
               <Card
