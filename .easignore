@@ -1,0 +1,4 @@
+# Exclude Bun lockfile so EAS doesn’t select Bun as package manager
+bun.lockb
+# (optional) If present, also ignore Bun config
+bunfig.toml
