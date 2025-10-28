@@ -1,0 +1,9 @@
+# Fastlane App configuration
+
+# Pour iOS
+app_identifier("app.lovable.63388a6310ac40b691afdcee1bd8ff6f") # Bundle ID
+apple_id(ENV["FASTLANE_USER"]) # Apple Developer email
+
+# Pour Android
+package_name("app.lovable.lafleche") # Package name
+json_key_file("") # Chemin vers le fichier JSON Google Play (optionnel, peut être configuré dans les secrets GitHub)

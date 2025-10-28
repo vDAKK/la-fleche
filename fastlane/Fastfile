@@ -1,0 +1,91 @@
+# Fastlane configuration for La Flèche
+
+default_platform(:android)
+
+platform :android do
+  desc "Build Android app"
+  lane :build do
+    gradle(
+      task: "assemble",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+  end
+
+  desc "Build and deploy to Play Store (beta)"
+  lane :beta do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+    
+    upload_to_play_store(
+      track: 'beta',
+      aab: 'android/app/build/outputs/bundle/release/app-release.aab',
+      skip_upload_screenshots: true,
+      skip_upload_images: true
+    )
+  end
+
+  desc "Deploy to Play Store (production)"
+  lane :production do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+    
+    upload_to_play_store(
+      track: 'production',
+      aab: 'android/app/build/outputs/bundle/release/app-release.aab',
+      skip_upload_screenshots: true,
+      skip_upload_images: true
+    )
+  end
+end
+
+platform :ios do
+  desc "Build iOS app"
+  lane :build do
+    build_app(
+      workspace: "ios/App/App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store",
+      output_directory: "ios/",
+      output_name: "App.ipa"
+    )
+  end
+
+  desc "Build and deploy to TestFlight"
+  lane :beta do
+    build_app(
+      workspace: "ios/App/App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store",
+      output_directory: "ios/",
+      output_name: "App.ipa"
+    )
+    
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Deploy to App Store"
+  lane :production do
+    build_app(
+      workspace: "ios/App/App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store",
+      output_directory: "ios/",
+      output_name: "App.ipa"
+    )
+    
+    upload_to_app_store(
+      skip_metadata: true,
+      skip_screenshots: true,
+      force: true
+    )
+  end
+end
