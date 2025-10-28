@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "flight-point-master",
+    "slug": "flight-point-master",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./public/placeholder.svg",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./public/placeholder.svg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.lovable.63388a6310ac40b691afdcee1bd8ff6f"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./public/placeholder.svg",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "app.lovable.63388a6310ac40b691afdcee1bd8ff6f"
+    },
+    "web": {
+      "favicon": "./public/favicon.ico",
+      "bundler": "metro"
+    }
+  }
+}
