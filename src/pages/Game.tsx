@@ -216,48 +216,56 @@ const Game = () => {
   if (!currentPlayer) return null;
 
   return (
-    <div className="min-h-screen p-4 bg-background">
-      <div className="max-w-md mx-auto space-y-4">
+    <div className="min-h-screen p-4 bg-background relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-10 right-10 w-64 h-64 bg-primary/40 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-10 left-10 w-64 h-64 bg-secondary/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
+      <div className="max-w-md mx-auto space-y-4 relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between animate-fade-in">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/")}
+            className="hover:scale-110 transition-transform"
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-2xl font-bold capitalize">{gameMode}</h1>
+          <h1 className="text-4xl font-bold capitalize tracking-wider text-gradient-primary drop-shadow-lg">{gameMode}</h1>
           <Button
             variant="ghost"
             size="icon"
             onClick={undoLastThrow}
             disabled={currentThrow === 0}
+            className="hover:scale-110 transition-transform disabled:opacity-30"
           >
             <Undo2 className="w-6 h-6" />
           </Button>
         </div>
 
         {/* Rules */}
-        <Card className="p-3 bg-accent/20 border-accent/40">
-          <div className="text-sm text-center font-medium">
+        <Card className="p-4 bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/40 shadow-lg animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="text-base text-center font-semibold tracking-wide">
             📋 {gameRules[gameMode as keyof typeof gameRules]}
           </div>
         </Card>
 
         {/* Scores */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           {players.map((player, idx) => (
             <Card
               key={player.id}
-              className={`p-4 text-center transition-all ${
+              className={`p-5 text-center transition-all duration-500 ${
                 idx === currentPlayerIndex
-                  ? "border-2 border-primary shadow-[0_0_20px_hsl(var(--primary)/0.4)]"
-                  : "border border-border opacity-60"
+                  ? "border-3 border-primary glow-primary scale-105 bg-gradient-to-br from-card to-primary/10"
+                  : "border-2 border-border/50 opacity-70 hover:opacity-90"
               }`}
             >
-              <div className="font-bold text-lg truncate">{player.name}</div>
-              <div className="text-4xl font-bold text-primary mt-2">
+              <div className="font-bold text-xl truncate tracking-wide">{player.name}</div>
+              <div className="text-5xl font-bold text-primary mt-3 tabular-nums">
                 {player.score}
               </div>
               
@@ -296,21 +304,21 @@ const Game = () => {
         </div>
 
         {/* Current Turn Info */}
-        <Card className="p-4 bg-card border-2 border-primary/30">
-          <div className="text-center space-y-2">
-            <div className="text-xl font-bold">
-              Tour de {currentPlayer.name}
+        <Card className="p-6 bg-gradient-to-br from-card to-primary/5 border-3 border-primary/40 shadow-xl animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <div className="text-center space-y-4">
+            <div className="text-2xl font-bold tracking-wide">
+              Tour de <span className="text-primary">{currentPlayer.name}</span>
             </div>
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-4">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className={`w-16 h-16 rounded-lg border-2 flex items-center justify-center text-xl font-bold ${
+                  className={`w-20 h-20 rounded-xl border-3 flex items-center justify-center text-2xl font-bold transition-all duration-300 ${
                     i < currentThrow
-                      ? "bg-secondary text-secondary-foreground border-secondary"
+                      ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground border-secondary shadow-lg glow-secondary scale-105"
                       : i === currentThrow
-                      ? "bg-primary/20 border-primary animate-pulse"
-                      : "bg-muted border-border"
+                      ? "bg-primary/20 border-primary animate-pulse ring-2 ring-primary/50"
+                      : "bg-muted/50 border-border/50"
                   }`}
                 >
                   {i < throwsThisTurn.length ? throwsThisTurn[i] : ""}
@@ -321,20 +329,20 @@ const Game = () => {
         </Card>
 
         {/* Multiplier Selection */}
-        <Card className="p-4 bg-card border-2 border-accent/30">
-          <div className="text-center mb-3">
-            <span className="text-sm font-bold text-muted-foreground">
+        <Card className="p-5 bg-gradient-to-br from-card to-accent/5 border-3 border-accent/40 shadow-xl animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="text-center mb-4">
+            <span className="text-base font-bold text-accent tracking-wide">
               Multiplicateur sélectionné
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {multiplierButtons.map((btn) => (
               <Button
                 key={btn.label}
                 variant={selectedMultiplier === btn.multiplier ? "default" : "outline"}
                 size="lg"
                 onClick={() => setSelectedMultiplier(btn.multiplier)}
-                className="text-base font-bold"
+                className="text-lg font-bold h-14 hover:scale-105 transition-all duration-300 shadow-md"
               >
                 {btn.label}
               </Button>
@@ -343,16 +351,19 @@ const Game = () => {
         </Card>
 
         {/* Score Pad */}
-        <div className={`grid gap-2 ${gameMode === "cricket" ? "grid-cols-4" : "grid-cols-4"}`}>
-          {scoreButtons.map((btn) => (
+        <div className={`grid gap-3 animate-fade-in ${gameMode === "cricket" ? "grid-cols-4" : "grid-cols-4"}`} style={{ animationDelay: '0.5s' }}>
+          {scoreButtons.map((btn, index) => (
             <Button
               key={btn.label}
               variant="score"
               onClick={() => addScore(btn.value)}
-              className={`${btn.label === "Bull" ? "col-span-2" : ""} ${
-                selectedMultiplier === 2 ? "ring-2 ring-accent" : 
-                selectedMultiplier === 3 ? "ring-2 ring-secondary" : ""
+              className={`text-xl font-bold h-16 hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl animate-fade-in ${
+                btn.label === "Bull" ? "col-span-2" : ""
+              } ${
+                selectedMultiplier === 2 ? "ring-4 ring-accent glow-accent" : 
+                selectedMultiplier === 3 ? "ring-4 ring-secondary glow-secondary" : ""
               }`}
+              style={{ animationDelay: `${0.55 + index * 0.02}s` }}
             >
               {btn.label}
             </Button>
