@@ -439,7 +439,7 @@ const Game = () => {
 
   return (
     <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-hidden">
-      <div className="flex-1 overflow-auto p-3 sm:p-4">
+      <div className="flex-1 overflow-auto overscroll-none p-3 sm:p-4">
         <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between px-1">
@@ -459,7 +459,7 @@ const Game = () => {
         </div>
 
         {/* Players Scores */}
-        <ScrollArea className="max-h-[35vh] w-full rounded-lg border border-border/30 bg-background/50 p-2">
+        <ScrollArea className="h-[40vh] sm:h-[45vh] overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 bg-background/50 p-2">
           <div className={`grid gap-2 pb-2 ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
             {players.map((player, idx) => (
               <Card
@@ -475,7 +475,7 @@ const Game = () => {
 
                 {/* Cricket marks */}
                 {gameMode === "cricket" && player.cricketMarks && (
-                  <ScrollArea className="mt-1.5 max-h-24 w-full">
+                  <ScrollArea className="mt-1.5 h-24 overscroll-contain touch-pan-y w-full">
                     <div className="grid grid-cols-4 gap-0.5 pr-1 pb-1">
                       {cricketNumbers.map((num) => {
                         const marks = player.cricketMarks![num] || 0;
