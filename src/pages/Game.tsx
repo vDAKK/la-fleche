@@ -47,8 +47,63 @@ const Game = () => {
   const [winner, setWinner] = useState<GamePlayer | null>(null);
   const [showVictoryDialog, setShowVictoryDialog] = useState(false);
 
+  // Save game state to localStorage
+  useEffect(() => {
+    if (players.length > 0 && !winner) {
+      const gameState = {
+        players,
+        currentPlayerIndex,
+        dartCount,
+        currentThrows,
+        multiplier,
+        doubleOut,
+        previousTurnState,
+        cricketNumbers,
+        roundScores: Array.from(roundScores.entries()),
+        gameMode,
+        configLives,
+        configStartScore,
+        configCricketMode,
+        configDoubleOut,
+        url: window.location.href,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem("darts-game-in-progress", JSON.stringify(gameState));
+    }
+  }, [players, currentPlayerIndex, dartCount, currentThrows, multiplier, roundScores, winner]);
+
+  // Clear saved game when game ends
+  useEffect(() => {
+    if (winner) {
+      localStorage.removeItem("darts-game-in-progress");
+    }
+  }, [winner]);
+
   // Initialize players once
   useEffect(() => {
+    // Check for saved game state first
+    const savedGame = localStorage.getItem("darts-game-in-progress");
+    if (savedGame) {
+      try {
+        const state = JSON.parse(savedGame);
+        // Only restore if it's the same game (matching URL params)
+        if (state.url === window.location.href) {
+          setPlayers(state.players);
+          setCurrentPlayerIndex(state.currentPlayerIndex);
+          setDartCount(state.dartCount);
+          setCurrentThrows(state.currentThrows);
+          setMultiplier(state.multiplier);
+          setPreviousTurnState(state.previousTurnState);
+          setCricketNumbers(state.cricketNumbers || []);
+          setRoundScores(new Map(state.roundScores || []));
+          toast.success("Partie reprise !");
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to restore game state", e);
+      }
+    }
+
     const stored = localStorage.getItem("darts-players");
     if (!stored) {
       navigate("/");

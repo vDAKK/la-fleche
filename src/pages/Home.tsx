@@ -1,9 +1,41 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Target, Skull, TrendingDown } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Target, Skull, TrendingDown, Play, X } from "lucide-react";
 
 const Home = () => {
   const navigate = useNavigate();
+  const [savedGame, setSavedGame] = useState<any>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darts-game-in-progress");
+    if (saved) {
+      try {
+        const game = JSON.parse(saved);
+        // Check if game is less than 24 hours old
+        const hoursSinceLastPlay = (Date.now() - game.timestamp) / (1000 * 60 * 60);
+        if (hoursSinceLastPlay < 24) {
+          setSavedGame(game);
+        } else {
+          localStorage.removeItem("darts-game-in-progress");
+        }
+      } catch (e) {
+        console.error("Failed to load saved game", e);
+      }
+    }
+  }, []);
+
+  const resumeGame = () => {
+    if (savedGame?.url) {
+      navigate(savedGame.url.replace(window.location.origin, ""));
+    }
+  };
+
+  const deleteSavedGame = () => {
+    localStorage.removeItem("darts-game-in-progress");
+    setSavedGame(null);
+  };
 
   const gameModes = [
     {
@@ -56,6 +88,39 @@ const Home = () => {
             </p>
           </div>
         </div>
+
+        {/* Resume game card */}
+        {savedGame && (
+          <Card className="p-4 sm:p-6 glass-card border-primary/40 bg-gradient-to-br from-primary/15 to-primary/5 animate-fade-in">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Play className="w-5 h-5 text-primary" />
+                  <h3 className="font-bold text-lg">Partie en cours</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {savedGame.players?.length} joueurs • {savedGame.gameMode === "cricket" ? "Cricket" : savedGame.gameMode === "501" ? "501" : "Mort Subite"}
+                </p>
+                <Button 
+                  onClick={resumeGame}
+                  className="w-full"
+                  size="lg"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Reprendre la partie
+                </Button>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={deleteSavedGame}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* Game modes */}
         <div className="space-y-3 sm:space-y-4">
