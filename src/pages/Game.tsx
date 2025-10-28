@@ -639,8 +639,8 @@ const Game = () => {
 
       {/* Victory Dialog */}
       <Dialog open={showVictoryDialog} onOpenChange={setShowVictoryDialog}>
-        <DialogContent className="max-w-md glass-card border-primary/30">
-          <DialogHeader>
+        <DialogContent className="max-w-md glass-card border-primary/30 max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary mb-4 animate-float">
                 <Trophy className="w-10 h-10 text-white" />
@@ -653,9 +653,10 @@ const Game = () => {
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4 mt-4">
-            {/* Statistics */}
-            <div className="space-y-3">
+          <ScrollArea className="flex-1 overflow-auto px-1">
+            <div className="space-y-4 mt-4 pb-2">
+              {/* Statistics */}
+              <div className="space-y-3">
               {players.map((player) => (
                 <Card 
                   key={player.id}
@@ -732,30 +733,31 @@ const Game = () => {
                   </div>
                 </Card>
               ))}
-            </div>
+              </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                size="lg"
-                className="flex-1"
-                onClick={() => {
-                  setShowVictoryDialog(false);
-                  setWinner(null);
-                }}
-              >
-                Continuer
-              </Button>
-              <Button
-                size="lg"
-                className="flex-1"
-                onClick={() => navigate("/")}
-              >
-                Menu
-              </Button>
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowVictoryDialog(false);
+                    setWinner(null);
+                  }}
+                >
+                  Continuer
+                </Button>
+                <Button
+                  size="lg"
+                  className="flex-1"
+                  onClick={() => navigate("/")}
+                >
+                  Menu
+                </Button>
+              </div>
             </div>
-          </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
