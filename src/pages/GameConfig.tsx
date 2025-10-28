@@ -17,6 +17,7 @@ const GameConfig = () => {
   const [lives, setLives] = useState(3);
   const [startScore, setStartScore] = useState(501);
   const [cricketMode, setCricketMode] = useState<"classic" | "random">("classic");
+  const [doubleOut, setDoubleOut] = useState(true);
 
   const startGame = () => {
     if (!players) {
@@ -34,6 +35,7 @@ const GameConfig = () => {
       params.append("lives", lives.toString());
     } else if (mode === "501") {
       params.append("startScore", startScore.toString());
+      params.append("doubleOut", doubleOut.toString());
     } else if (mode === "cricket") {
       params.append("cricketMode", cricketMode);
     }
@@ -86,21 +88,51 @@ const GameConfig = () => {
           {/* 501 config */}
           {mode === "501" && (
             <div className="space-y-4">
-              <Label className="text-base font-semibold">Score de départ</Label>
-              <RadioGroup
-                value={startScore.toString()}
-                onValueChange={(v) => setStartScore(parseInt(v))}
-                className="space-y-3"
-              >
-                {[301, 501, 701, 901].map((n) => (
-                  <div key={n} className="flex items-center space-x-3">
-                    <RadioGroupItem value={n.toString()} id={`score-${n}`} />
-                    <Label htmlFor={`score-${n}`} className="cursor-pointer text-base">
-                      {n}
+              <div>
+                <Label className="text-base font-semibold">Score de départ</Label>
+                <RadioGroup
+                  value={startScore.toString()}
+                  onValueChange={(v) => setStartScore(parseInt(v))}
+                  className="space-y-3 mt-2"
+                >
+                  {[301, 501, 701, 901].map((n) => (
+                    <div key={n} className="flex items-center space-x-3">
+                      <RadioGroupItem value={n.toString()} id={`score-${n}`} />
+                      <Label htmlFor={`score-${n}`} className="cursor-pointer text-base">
+                        {n}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+              
+              <div>
+                <Label className="text-base font-semibold">Règle de sortie</Label>
+                <RadioGroup
+                  value={doubleOut.toString()}
+                  onValueChange={(v) => setDoubleOut(v === "true")}
+                  className="space-y-3 mt-2"
+                >
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="true" id="double-on" />
+                    <Label htmlFor="double-on" className="cursor-pointer">
+                      <div className="text-base font-medium">Double Out ON</div>
+                      <div className="text-sm text-muted-foreground">
+                        Finir avec un double obligatoire
+                      </div>
                     </Label>
                   </div>
-                ))}
-              </RadioGroup>
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="false" id="double-off" />
+                    <Label htmlFor="double-off" className="cursor-pointer">
+                      <div className="text-base font-medium">Double Out OFF</div>
+                      <div className="text-sm text-muted-foreground">
+                        Finir avec n'importe quel score
+                      </div>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
             </div>
           )}
 

@@ -29,13 +29,14 @@ const Game = () => {
   const configLives = parseInt(searchParams.get("lives") || "3");
   const configStartScore = parseInt(searchParams.get("startScore") || "501");
   const configCricketMode = (searchParams.get("cricketMode") || "classic") as "classic" | "random";
+  const configDoubleOut = searchParams.get("doubleOut") !== "false"; // Default to true
 
   const [players, setPlayers] = useState<GamePlayer[]>([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [dartCount, setDartCount] = useState(0);
   const [currentThrows, setCurrentThrows] = useState<{ base: number; mult: number }[]>([]);
   const [multiplier, setMultiplier] = useState(1);
-  const [doubleOut, setDoubleOut] = useState(true);
+  const [doubleOut] = useState(configDoubleOut);
   const [previousTurnState, setPreviousTurnState] = useState<{
     players: GamePlayer[];
     playerIndex: number;
@@ -514,17 +515,6 @@ const Game = () => {
             </Button>
           ))}
         </div>
-
-        {gameMode === "501" && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setDoubleOut(!doubleOut)}
-            className="w-full text-xs"
-          >
-            Double Out: {doubleOut ? "ON" : "OFF"}
-          </Button>
-        )}
       </div>
 
       {/* Victory Dialog */}
