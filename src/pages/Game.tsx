@@ -156,10 +156,10 @@ const Game = () => {
         player.cricketMarks &&
         cricketNumbers.every((n) => (player.cricketMarks![n] || 0) >= 3);
       if (allClosed) {
-        const hasHighestScore = updatedPlayers.every(
-          (p, idx) => idx === currentPlayerIndex || player.score >= p.score
+        const hasLowestScore = updatedPlayers.every(
+          (p, idx) => idx === currentPlayerIndex || player.score <= p.score
         );
-        if (hasHighestScore) {
+        if (hasLowestScore) {
           toast.success(`🏆 ${player.name} a gagné!`);
           setTimeout(() => navigate("/"), 2000);
           setPlayers(updatedPlayers);
