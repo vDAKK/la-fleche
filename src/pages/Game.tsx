@@ -383,8 +383,9 @@ const Game = () => {
     : allNumbers;
 
   return (
-    <div className="min-h-screen safe-top safe-bottom p-3 sm:p-4 bg-background">
-      <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4 animate-fade-in">
+    <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-hidden">
+      <div className="flex-1 overflow-auto p-3 sm:p-4">
+        <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between px-1">
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
@@ -561,6 +562,7 @@ const Game = () => {
             );
           })}
         </div>
+      </div>
       </div>
 
       {/* Victory Dialog */}
