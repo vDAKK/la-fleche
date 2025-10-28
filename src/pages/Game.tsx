@@ -410,29 +410,31 @@ const Game = () => {
 
                 {/* Cricket marks */}
                 {gameMode === "cricket" && player.cricketMarks && (
-                  <div className="mt-1.5 grid grid-cols-4 gap-0.5">
-                    {cricketNumbers.map((num) => {
-                      const marks = player.cricketMarks![num] || 0;
-                      const closed = marks >= 3;
-                      return (
-                        <div
-                          key={num}
-                          className={`text-[8px] sm:text-[9px] p-0.5 rounded transition-all duration-300 ${
-                            marks === 0
-                              ? "bg-muted/30 text-muted-foreground border border-border/30"
-                              : marks === 1
-                              ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
-                              : marks === 2
-                              ? "bg-orange-500/25 text-orange-300 border border-orange-500/50 shadow-md"
-                              : "bg-primary/25 text-primary border-2 border-primary/60 shadow-lg shadow-primary/20 font-bold"
-                          }`}
-                        >
-                          <div className="font-semibold">{num}</div>
-                          <div className="text-[9px] font-bold">{getMarkSymbol(marks)}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <ScrollArea className="mt-1.5 max-h-24 w-full">
+                    <div className="grid grid-cols-4 gap-0.5 pr-1 pb-1">
+                      {cricketNumbers.map((num) => {
+                        const marks = player.cricketMarks![num] || 0;
+                        const closed = marks >= 3;
+                        return (
+                          <div
+                            key={num}
+                            className={`text-[8px] sm:text-[9px] p-0.5 rounded transition-all duration-300 ${
+                              marks === 0
+                                ? "bg-muted/30 text-muted-foreground border border-border/30"
+                                : marks === 1
+                                ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm"
+                                : marks === 2
+                                ? "bg-orange-500/25 text-orange-300 border border-orange-500/50 shadow-md"
+                                : "bg-primary/25 text-primary border-2 border-primary/60 shadow-lg shadow-primary/20 font-bold"
+                            }`}
+                          >
+                            <div className="font-semibold">{num}</div>
+                            <div className="text-[9px] font-bold">{getMarkSymbol(marks)}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
                 )}
 
                 {/* Lives */}
