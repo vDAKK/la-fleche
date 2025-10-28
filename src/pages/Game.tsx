@@ -246,7 +246,9 @@ const Game = () => {
 
   if (!currentPlayer) return null;
 
-  const numbersToShow = gameMode === "cricket" ? cricketNumbers : allNumbers;
+  const numbersToShow = gameMode === "cricket" 
+    ? [0, ...cricketNumbers] // Include 0 for missed throws
+    : allNumbers;
 
   return (
     <div className="min-h-screen p-3 bg-background">
