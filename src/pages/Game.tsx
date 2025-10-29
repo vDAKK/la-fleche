@@ -50,6 +50,18 @@ const Game = () => {
   // Save game state to localStorage
   useEffect(() => {
     if (players.length > 0 && !winner) {
+      const base = import.meta.env.BASE_URL || "/";
+      const pathnameSearch = window.location.pathname + window.location.search;
+      const hashPath = window.location.hash && window.location.hash.startsWith("#")
+        ? window.location.hash.slice(1)
+        : "";
+      const effectiveRoute = hashPath && hashPath.startsWith("/")
+        ? hashPath
+        : pathnameSearch.replace(base, "/");
+      const effectivePath = hashPath && hashPath.startsWith("/")
+        ? hashPath
+        : pathnameSearch;
+
       const gameState = {
         players,
         currentPlayerIndex,
@@ -65,10 +77,10 @@ const Game = () => {
         configStartScore,
         configCricketMode,
         configDoubleOut,
-        // Relative route (respects Router basename)
-        route: (window.location.pathname + window.location.search).replace(import.meta.env.BASE_URL, "/"),
-        // Absolute path for backward compatibility
-        path: window.location.pathname + window.location.search,
+        // Router-aware route (supports HashRouter on native)
+        route: effectiveRoute,
+        // Absolute-ish path used for backward compatibility
+        path: effectivePath,
         timestamp: Date.now(),
       };
       localStorage.setItem("darts-game-in-progress", JSON.stringify(gameState));
@@ -89,10 +101,16 @@ const Game = () => {
     if (savedGame) {
       try {
         const state = JSON.parse(savedGame);
-        // Only restore if it's the same game (matching URL params)
+        // Only restore if it's the same game (matching URL params / route)
         const currentPath = window.location.pathname + window.location.search;
-        const currentRoute = currentPath.replace(import.meta.env.BASE_URL, "/");
-        if ((state.route && state.route === currentRoute) || state.path === currentPath) {
+        const base = import.meta.env.BASE_URL || "/";
+        const hashPath = window.location.hash && window.location.hash.startsWith("#")
+          ? window.location.hash.slice(1)
+          : "";
+        const currentRoute = hashPath && hashPath.startsWith("/")
+          ? hashPath
+          : currentPath.replace(base, "/");
+        if ((state.route && state.route === currentRoute) || state.path === currentPath || (hashPath && (state.route === hashPath || state.path === hashPath))) {
           setPlayers(state.players);
           setCurrentPlayerIndex(state.currentPlayerIndex);
           setDartCount(state.dartCount);

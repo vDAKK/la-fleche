@@ -33,6 +33,19 @@ const Home = () => {
     
     // On native platforms (HashRouter), use the path as-is
     if (Capacitor.isNativePlatform()) {
+      // Fallback for legacy saved games (HashRouter path missing): rebuild route
+      if (!target || target === "/") {
+        const params = new URLSearchParams();
+        if (savedGame?.gameMode) params.set("mode", savedGame.gameMode);
+        if (Array.isArray(savedGame?.players) && savedGame.players.length > 0) {
+          params.set("players", savedGame.players.map((p: any) => p.id).join(","));
+        }
+        if (savedGame?.configLives != null) params.set("lives", String(savedGame.configLives));
+        if (savedGame?.configStartScore != null) params.set("startScore", String(savedGame.configStartScore));
+        if (savedGame?.configCricketMode) params.set("cricketMode", savedGame.configCricketMode);
+        if (savedGame?.configDoubleOut != null) params.set("doubleOut", String(savedGame.configDoubleOut));
+        target = `/game?${params.toString()}`;
+      }
       navigate(target);
       return;
     }
