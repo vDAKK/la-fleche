@@ -16,6 +16,11 @@ jobs:
   build-android:
     if: github.event.inputs.platform == 'android' || github.event.inputs.platform == 'both'
     runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,22 +58,22 @@ jobs:
         run: npx capacitor-assets generate --android
 
       - name: Decode Keystore
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app-release.keystore
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app-release.keystore
 
       - name: Create key.properties
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
           cat > android/key.properties << EOF
-          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
-          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
           storeFile=app-release.keystore
           EOF
 
       - name: Update build.gradle for signing
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
           # Backup original
           cp android/app/build.gradle android/app/build.gradle.bak
@@ -94,24 +99,24 @@ jobs:
           sed -i '/buildTypes {/,/release {/,/}/s/minifyEnabled.*/minifyEnabled false\n            signingConfig signingConfigs.release/' android/app/build.gradle
 
       - name: Build signed Android AAB
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
           cd android
           ./gradlew bundleRelease
 
       - name: Build debug APK (fallback)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
         run: bundle exec fastlane android build
 
       - name: Upload Android AAB (signed)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: android-aab-release
           path: android/app/build/outputs/bundle/release/app-release.aab
 
       - name: Upload Android APK (debug)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
         uses: actions/upload-artifact@v4
         with:
           name: android-apk-debug
