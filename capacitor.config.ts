@@ -3,7 +3,11 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'app.lovable.lafleche',
   appName: 'La Flèche',
-  webDir: 'dist'
+  webDir: 'dist',
+  android: {
+    versionCode: 1,
+    versionName: '1.0.0'
+  }
 };
 
 export default config;
