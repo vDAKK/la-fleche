@@ -94,8 +94,8 @@ jobs:
           awk '/android \{/ {print; print "    signingConfigs {"; print "        release {"; print "            if (keystorePropertiesFile.exists()) {"; print "                keyAlias keystoreProperties[\"keyAlias\"]"; print "                keyPassword keystoreProperties[\"keyPassword\"]"; print "                storeFile file(keystoreProperties[\"storeFile\"])"; print "                storePassword keystoreProperties[\"storePassword\"]"; print "            }"; print "        }"; print "    }"; next} 1' android/app/build.gradle > /tmp/build.gradle.new
           mv /tmp/build.gradle.new android/app/build.gradle
           
-          # Update buildTypes release to use signingConfig (only in buildTypes block)
-          awk '/buildTypes \{/ {inBuildTypes=1} inBuildTypes && /release \{/ && !done {print; print "            signingConfig signingConfigs.release"; done=1; next} {print}' android/app/build.gradle > /tmp/build.gradle.new
+          # Update buildTypes release to use signingConfig and enable minification
+          awk '/buildTypes \{/ {inBuildTypes=1} inBuildTypes && /release \{/ && !done {print; print "            signingConfig signingConfigs.release"; print "            minifyEnabled true"; print "            shrinkResources true"; print "            proguardFiles getDefaultProguardFile(\"proguard-android-optimize.txt\"), \"proguard-rules.pro\""; done=1; next} {print}' android/app/build.gradle > /tmp/build.gradle.new
           mv /tmp/build.gradle.new android/app/build.gradle
 
       - name: Build signed Android AAB
@@ -114,6 +114,13 @@ jobs:
         with:
           name: android-aab-release
           path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload ProGuard mapping file
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-mapping-release
+          path: android/app/build/outputs/mapping/release/mapping.txt
 
       - name: Upload Android APK (debug)
         if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
