@@ -42,12 +42,15 @@ jobs:
         run: npm install
 
       - name: Build web app
-        run: npm run build
+        run: npm run build -- --mode native
 
       - name: Setup Capacitor
         run: |
           npx cap add android || true
           npx cap sync android
+
+      - name: Generate Android app icons and splash
+        run: npx capacitor-assets generate -p android
 
       - name: Build Android with Fastlane
         run: bundle exec fastlane android build
@@ -81,13 +84,15 @@ jobs:
         run: npm install
 
       - name: Build web app
-        run: npm run build
+        run: npm run build -- --mode native
 
       - name: Setup Capacitor
         run: |
           npx cap add ios || true
           npx cap sync ios
 
+      - name: Generate iOS app icons and splash
+        run: npx capacitor-assets generate -p ios
       - name: Install CocoaPods
         run: |
           cd ios/App
