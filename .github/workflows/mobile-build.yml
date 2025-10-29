@@ -94,8 +94,9 @@ jobs:
           awk '/android \{/ {print; print "    signingConfigs {"; print "        release {"; print "            if (keystorePropertiesFile.exists()) {"; print "                keyAlias keystoreProperties[\"keyAlias\"]"; print "                keyPassword keystoreProperties[\"keyPassword\"]"; print "                storeFile file(keystoreProperties[\"storeFile\"])"; print "                storePassword keystoreProperties[\"storePassword\"]"; print "            }"; print "        }"; print "    }"; next} 1' android/app/build.gradle > /tmp/build.gradle.new
           mv /tmp/build.gradle.new android/app/build.gradle
           
-          # Update buildTypes release to use signingConfig (simpler approach)
-          sed -i '/release {/a\            signingConfig signingConfigs.release' android/app/build.gradle
+          # Update buildTypes release to use signingConfig (only in buildTypes block)
+          awk '/buildTypes \{/ {inBuildTypes=1} inBuildTypes && /release \{/ && !done {print; print "            signingConfig signingConfigs.release"; done=1; next} {print}' android/app/build.gradle > /tmp/build.gradle.new
+          mv /tmp/build.gradle.new android/app/build.gradle
 
       - name: Build signed Android AAB
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
