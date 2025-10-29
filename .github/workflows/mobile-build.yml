@@ -50,7 +50,7 @@ jobs:
           npx cap sync android
 
       - name: Generate Android app icons and splash
-        run: npx capacitor-assets generate -p android
+        run: npx capacitor-assets generate --android
 
       - name: Build Android with Fastlane
         run: bundle exec fastlane android build
@@ -92,7 +92,7 @@ jobs:
           npx cap sync ios
 
       - name: Generate iOS app icons and splash
-        run: npx capacitor-assets generate -p ios
+        run: npx capacitor-assets generate --ios
       - name: Install CocoaPods
         run: |
           cd ios/App
