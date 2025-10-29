@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Target, Skull, TrendingDown, Play, X } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -27,10 +28,17 @@ const Home = () => {
   }, []);
 
   const resumeGame = () => {
-    const base = import.meta.env.BASE_URL || "/";
     let target = savedGame?.route ?? savedGame?.path;
     if (!target) return;
-    // If saved path contains the basename, strip it to avoid duplication
+    
+    // On native platforms (HashRouter), use the path as-is
+    if (Capacitor.isNativePlatform()) {
+      navigate(target);
+      return;
+    }
+    
+    // On web (BrowserRouter), handle BASE_URL
+    const base = import.meta.env.BASE_URL || "/";
     if (base !== "/" && target.startsWith(base)) {
       target = target.replace(base, "/");
     }
