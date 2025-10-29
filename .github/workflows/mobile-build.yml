@@ -60,7 +60,7 @@ jobs:
       - name: Decode Keystore
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app-release.keystore
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/app-release.keystore
 
       - name: Create key.properties
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
