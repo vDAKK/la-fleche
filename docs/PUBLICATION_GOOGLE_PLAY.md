@@ -106,17 +106,39 @@ L'AAB sera généré dans: `android/app/build/outputs/bundle/release/app-release
 
 ### Configuration des secrets pour GitHub Actions
 
-Dans les paramètres de votre repo GitHub, ajoutez:
+Dans les paramètres de votre repo GitHub (`Settings > Secrets and variables > Actions`), ajoutez:
 
-1. **ANDROID_KEYSTORE_BASE64**
+1. **ANDROID_KEYSTORE_BASE64** - Votre keystore encodé en base64
 ```bash
-base64 -i la-fleche.keystore | pbcopy  # macOS
-base64 -w 0 la-fleche.keystore         # Linux
+# macOS
+base64 -i la-fleche.keystore | pbcopy
+
+# Linux
+base64 -w 0 la-fleche.keystore
+
+# Windows (PowerShell)
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("la-fleche.keystore"))
 ```
 
 2. **ANDROID_KEYSTORE_PASSWORD** - Mot de passe du keystore
 3. **ANDROID_KEY_ALIAS** - `la-fleche`
 4. **ANDROID_KEY_PASSWORD** - Mot de passe de la clé
+
+### Générer l'AAB automatiquement avec GitHub Actions
+
+Une fois les secrets configurés:
+
+1. Allez dans l'onglet **Actions** de votre repo GitHub
+2. Sélectionnez le workflow **"Build Mobile Apps"**
+3. Cliquez sur **"Run workflow"**
+4. Choisissez `android` comme plateforme
+5. L'AAB signé sera généré et disponible en téléchargement dans les artifacts
+
+**Avantages:**
+- ✅ Génération automatique sur chaque push ou à la demande
+- ✅ Pas besoin d'installer Android Studio localement
+- ✅ Keystore sécurisé dans les secrets GitHub
+- ✅ Reproductible et traçable
 
 ### Déployer avec Fastlane
 
