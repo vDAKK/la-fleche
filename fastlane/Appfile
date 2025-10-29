@@ -1,7 +1,7 @@
 # Fastlane App configuration
 
 # Pour iOS
-app_identifier("app.lovable.63388a6310ac40b691afdcee1bd8ff6f") # Bundle ID
+app_identifier("app.lovable.lafleche") # Bundle ID
 apple_id(ENV["FASTLANE_USER"]) # Apple Developer email
 
 # Pour Android

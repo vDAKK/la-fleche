@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.63388a6310ac40b691afdcee1bd8ff6f',
+  appId: 'app.lovable.lafleche',
   appName: 'flight-point-master',
   webDir: 'dist',
   server: {
