@@ -4,10 +4,10 @@
     "slug": "la-fleche",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./public/placeholder.svg",
+    "icon": "./public/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./public/placeholder.svg",
+      "image": "./public/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -20,7 +20,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./public/placeholder.svg",
+        "foregroundImage": "./public/icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "app.lovable.a63388a6310ac40b691afdcee1bd8ff6f"
