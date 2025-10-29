@@ -78,7 +78,7 @@ jobs:
           # Backup original
           cp android/app/build.gradle android/app/build.gradle.bak
           
-          # Add signing config
+          # Add signing config at the beginning
           cat > /tmp/signing.gradle << 'EOFGRADLE'
           def keystorePropertiesFile = rootProject.file("key.properties")
           def keystoreProperties = new Properties()
@@ -87,16 +87,15 @@ jobs:
           }
           EOFGRADLE
           
-          # Insert at the beginning of the file
           cat /tmp/signing.gradle android/app/build.gradle > /tmp/build.gradle.new
           mv /tmp/build.gradle.new android/app/build.gradle
           
-          # Add signing configs inside android block (using awk for precise insertion)
+          # Add signing configs inside android block
           awk '/android \{/ {print; print "    signingConfigs {"; print "        release {"; print "            if (keystorePropertiesFile.exists()) {"; print "                keyAlias keystoreProperties[\"keyAlias\"]"; print "                keyPassword keystoreProperties[\"keyPassword\"]"; print "                storeFile file(keystoreProperties[\"storeFile\"])"; print "                storePassword keystoreProperties[\"storePassword\"]"; print "            }"; print "        }"; print "    }"; next} 1' android/app/build.gradle > /tmp/build.gradle.new
           mv /tmp/build.gradle.new android/app/build.gradle
           
-          # Update buildTypes release to use signingConfig
-          sed -i '/buildTypes {/,/release {/,/}/s/minifyEnabled.*/minifyEnabled false\n            signingConfig signingConfigs.release/' android/app/build.gradle
+          # Update buildTypes release to use signingConfig (simpler approach)
+          sed -i '/release {/a\            signingConfig signingConfigs.release' android/app/build.gradle
 
       - name: Build signed Android AAB
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
