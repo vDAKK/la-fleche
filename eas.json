@@ -15,7 +15,9 @@
         "simulator": true
       },
       "env": {
-        "EXPO_USE_LOCKFILE": "0"
+        "EXPO_USE_LOCKFILE": "0",
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+        "npm_config_legacy_peer_deps": "true"
       }
     },
     "preview": {
@@ -28,7 +30,9 @@
         "simulator": false
       },
       "env": {
-        "EXPO_USE_LOCKFILE": "0"
+        "EXPO_USE_LOCKFILE": "0",
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+        "npm_config_legacy_peer_deps": "true"
       }
     },
     "production": {
@@ -40,7 +44,9 @@
         "enterpriseProvisioning": "adhoc"
       },
       "env": {
-        "EXPO_USE_LOCKFILE": "0"
+        "EXPO_USE_LOCKFILE": "0",
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+        "npm_config_legacy_peer_deps": "true"
       }
     }
   },
