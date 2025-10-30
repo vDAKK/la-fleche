@@ -97,8 +97,8 @@ mv /tmp/build.gradle.new "$TARGET_FILE"
 
 # Update buildTypes release to use signingConfig and enable minification (per DSL)
 if [ "$DSL" = "groovy" ]; then
-  awk '/buildTypes \{/ {inBuildTypes=1} inBuildTypes && /release \{/ && !done {print; print "            signingConfig signingConfigs.release"; print "            minifyEnabled true"; print "            shrinkResources true"; print "            proguardFiles getDefaultProguardFile(\"proguard-android-optimize.txt\"), \"proguard-rules.pro\""; done=1; next} {print}' "$TARGET_FILE" > /tmp/build.gradle.new
+  awk '/buildTypes \{/ {inBuildTypes=1} inBuildTypes && /release \{/ && !done {print; print "            signingConfig signingConfigs.release"; print "            minifyEnabled true"; print "            proguardFiles getDefaultProguardFile(\"proguard-android-optimize.txt\"), \"proguard-rules.pro\""; done=1; next} {print}' "$TARGET_FILE" > /tmp/build.gradle.new
 else
-  awk '/buildTypes \{/ {inBuildTypes=1} inBuildTypes && /release \{/ && !done {print; print "            signingConfig = signingConfigs.getByName(\"release\")"; print "            isMinifyEnabled = true"; print "            isShrinkResources = true"; print "            proguardFiles(getDefaultProguardFile(\"proguard-android-optimize.txt\"), \"proguard-rules.pro\")"; done=1; next} {print}' "$TARGET_FILE" > /tmp/build.gradle.new
+  awk '/buildTypes \{/ {inBuildTypes=1} inBuildTypes && /release \{/ && !done {print; print "            signingConfig = signingConfigs.getByName(\"release\")"; print "            isMinifyEnabled = true"; print "            proguardFiles(getDefaultProguardFile(\"proguard-android-optimize.txt\"), \"proguard-rules.pro\")"; done=1; next} {print}' "$TARGET_FILE" > /tmp/build.gradle.new
 fi
 mv /tmp/build.gradle.new "$TARGET_FILE"
