@@ -26,10 +26,10 @@ else
 apply plugin: 'com.android.application'
 
 android {
-    namespace "app.lovable.lafleche"
+    namespace "app.dakk.lafleche"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "app.lovable.lafleche"
+        applicationId "app.dakk.lafleche"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
