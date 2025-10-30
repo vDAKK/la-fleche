@@ -51,7 +51,12 @@ jobs:
 
       - name: Setup Capacitor
         run: |
-          npx cap add android || true
+          if [ ! -f android/gradlew ]; then
+            rm -rf android
+            npx cap add android
+          else
+            echo "Android platform already present with Gradle wrapper."
+          fi
           npx cap sync android
 
       - name: Generate Android app icons and splash
@@ -80,8 +85,8 @@ jobs:
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
           cd android
+          chmod +x gradlew || true
           ./gradlew bundleRelease
-
       - name: Build debug APK (fallback)
         if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
         run: bundle exec fastlane android build
