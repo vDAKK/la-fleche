@@ -102,7 +102,7 @@ jobs:
             
             # Create a basic build.gradle if none exists
             echo "Creating basic build.gradle for signing configuration..."
-            cat > android/app/build.gradle << 'EOF'
+            cat > android/app/build.gradle << 'EOFBUILD'
 apply plugin: 'com.android.application'
 
 android {
@@ -136,7 +136,7 @@ dependencies {
 }
 
 apply from: 'capacitor.build.gradle'
-EOF
+EOFBUILD
             
             TARGET_FILE="android/app/build.gradle"
             DSL="groovy"
