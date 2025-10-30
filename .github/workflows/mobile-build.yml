@@ -76,6 +76,10 @@ jobs:
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
           set -e
+          
+          # Wait a moment for Capacitor to finish generating files
+          sleep 2
+          
           # Determine Gradle build file (Groovy or Kotlin DSL)
           if [ -f "android/app/build.gradle" ]; then
             TARGET_FILE="android/app/build.gradle"
@@ -84,10 +88,58 @@ jobs:
             TARGET_FILE="android/app/build.gradle.kts"
             DSL="kts"
           else
-            echo "No Gradle build file found in android/app"
-            ls -la android || true
-            ls -la android/app || true
-            exit 1
+            echo "No standard Gradle build file found. Checking for Capacitor 7 structure..."
+            
+            # For Capacitor 7, the build file might be generated differently
+            # Try to find any gradle files
+            find android -name "*.gradle*" -type f
+            
+            # Check if we need to create the build file
+            if [ ! -d "android/app" ]; then
+              echo "Error: android/app directory not found"
+              exit 1
+            fi
+            
+            # Create a basic build.gradle if none exists
+            echo "Creating basic build.gradle for signing configuration..."
+            cat > android/app/build.gradle << 'EOF'
+apply plugin: 'com.android.application'
+
+android {
+    namespace "app.lovable.lafleche"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "app.lovable.lafleche"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':capacitor-android')
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+EOF
+            
+            TARGET_FILE="android/app/build.gradle"
+            DSL="groovy"
           fi
 
           # Backup original
