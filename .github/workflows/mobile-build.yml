@@ -62,6 +62,9 @@ jobs:
           fi
           npx cap sync android
 
+      - name: Ensure version codes after sync
+        run: node scripts/bump-version.js
+
       - name: Generate Android app icons and splash
         run: npx capacitor-assets generate --android
 
