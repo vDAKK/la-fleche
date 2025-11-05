@@ -196,6 +196,7 @@ const Game = () => {
         const marksToAdd = multiplier;
         const newMarks = Math.min(currentMarks + marksToAdd, 3);
         const extraMarks = Math.max(0, currentMarks + marksToAdd - 3);
+        const marksCounted = newMarks - currentMarks; // real marks that count for MPR
 
         // Attach metadata BEFORE mutating marks
         dart = {
@@ -204,6 +205,7 @@ const Game = () => {
           preMarks: currentMarks,
           wasClosedBefore: currentMarks >= 3,
           extraMarksUsed: extraMarks,
+          marksCounted,
         };
 
         // Update marks (capped at 3)
@@ -221,8 +223,8 @@ const Game = () => {
           });
         }
         
-        // Increment totalThrown only for valid cricket number hits (for MPR calculation)
-        player.totalThrown = (player.totalThrown || 0) + marksToAdd;
+        // Increment totalThrown only by real marks that count for MPR
+        player.totalThrown = (player.totalThrown || 0) + marksCounted;
       }
 
       setPlayers(updatedPlayers);
@@ -435,7 +437,7 @@ const Game = () => {
             player.cricketMarks[lastThrow.base] = preMarks;
           }
           // Ajuster le MPR: retirer les marques de ce lancer
-          player.totalThrown = Math.max(0, (player.totalThrown || 0) - lastThrow.mult);
+          player.totalThrown = Math.max(0, (player.totalThrown || 0) - (lastThrow.marksCounted || 0));
         }
 
         setPlayers(updatedPlayers);
