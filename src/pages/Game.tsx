@@ -572,7 +572,7 @@ const Game = () => {
                     {/* Turn History */}
                     {player.turnHistory && player.turnHistory.length > 0 && (
                       <div className="flex gap-1 text-xs font-medium text-foreground/80">
-                        {player.turnHistory.slice(-3).map((turn, turnIdx) => (
+                        {player.turnHistory.slice(-1).map((turn, turnIdx) => (
                           <div key={turnIdx} className="flex gap-0.5">
                             {turn.map((dart, dartIdx) => (
                               <span key={dartIdx} className="bg-secondary/60 text-foreground px-1.5 py-0.5 rounded">
