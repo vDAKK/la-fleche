@@ -6,18 +6,15 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, Play } from "lucide-react";
 import { toast } from "sonner";
-
 const GameConfig = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode") || "cricket";
   const players = searchParams.get("players") || "";
-
   const [lives, setLives] = useState(3);
   const [startScore, setStartScore] = useState(501);
   const [cricketMode, setCricketMode] = useState<"classic" | "random">("classic");
   const [doubleOut, setDoubleOut] = useState(true);
-
   const getGameModeName = (mode: string) => {
     const names: Record<string, string> = {
       "cricket": "Cricket",
@@ -26,16 +23,16 @@ const GameConfig = () => {
     };
     return names[mode] || mode;
   };
-
   const startGame = () => {
     if (!players) {
       toast.error("Aucun joueur sélectionné");
       navigate("/");
       return;
     }
-
-    const params = new URLSearchParams({ mode, players });
-
+    const params = new URLSearchParams({
+      mode,
+      players
+    });
     if (mode === "sudden-death") {
       params.append("lives", lives.toString());
     } else if (mode === "501") {
@@ -44,12 +41,9 @@ const GameConfig = () => {
     } else if (mode === "cricket") {
       params.append("cricketMode", cricketMode);
     }
-
     navigate(`/game?${params.toString()}`);
   };
-
-  return (
-    <div className="min-h-screen safe-top safe-bottom p-4 sm:p-6">
+  return <div className="min-h-screen safe-top safe-bottom p-4 sm:p-6">
       <div className="max-w-lg mx-auto space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -70,74 +64,32 @@ const GameConfig = () => {
           </div>
 
           {/* Sudden Death config */}
-          {mode === "sudden-death" && (
-            <div className="space-y-4">
+          {mode === "sudden-death" && <div className="space-y-4">
               <Label className="text-base sm:text-lg font-semibold">Nombre de vies</Label>
-              <RadioGroup
-                value={lives.toString()}
-                onValueChange={(v) => setLives(parseInt(v))}
-                className="grid grid-cols-2 gap-3"
-              >
-                {[2, 3, 4, 5].map((n) => (
-                  <label
-                    key={n}
-                    htmlFor={`lives-${n}`}
-                    className={`flex items-center justify-center space-x-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      lives === n
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-card/50 hover:border-primary/50"
-                    }`}
-                  >
+              <RadioGroup value={lives.toString()} onValueChange={v => setLives(parseInt(v))} className="grid grid-cols-2 gap-3">
+                {[2, 3, 4, 5].map(n => <label key={n} htmlFor={`lives-${n}`} className={`flex items-center justify-center space-x-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${lives === n ? "border-primary bg-primary/10" : "border-border bg-card/50 hover:border-primary/50"}`}>
                     <RadioGroupItem value={n.toString()} id={`lives-${n}`} />
                     <span className="font-semibold">{n} vies</span>
-                  </label>
-                ))}
+                  </label>)}
               </RadioGroup>
-            </div>
-          )}
+            </div>}
 
           {/* 501 config */}
-          {mode === "501" && (
-            <div className="space-y-6">
+          {mode === "501" && <div className="space-y-6">
               <div className="space-y-4">
                 <Label className="text-base sm:text-lg font-semibold">Score de départ</Label>
-                <RadioGroup
-                  value={startScore.toString()}
-                  onValueChange={(v) => setStartScore(parseInt(v))}
-                  className="grid grid-cols-2 gap-3"
-                >
-                  {[301, 501, 701, 901].map((n) => (
-                    <label
-                      key={n}
-                      htmlFor={`score-${n}`}
-                      className={`flex items-center justify-center space-x-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        startScore === n
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-card/50 hover:border-primary/50"
-                      }`}
-                    >
+                <RadioGroup value={startScore.toString()} onValueChange={v => setStartScore(parseInt(v))} className="grid grid-cols-2 gap-3">
+                  {[301, 501, 701, 901].map(n => <label key={n} htmlFor={`score-${n}`} className={`flex items-center justify-center space-x-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${startScore === n ? "border-primary bg-primary/10" : "border-border bg-card/50 hover:border-primary/50"}`}>
                       <RadioGroupItem value={n.toString()} id={`score-${n}`} />
                       <span className="font-semibold">{n}</span>
-                    </label>
-                  ))}
+                    </label>)}
                 </RadioGroup>
               </div>
 
               <div className="space-y-4">
                 <Label className="text-base sm:text-lg font-semibold">Règle de sortie</Label>
-                <RadioGroup
-                  value={doubleOut.toString()}
-                  onValueChange={(v) => setDoubleOut(v === "true")}
-                  className="space-y-3"
-                >
-                  <label
-                    htmlFor="double-on"
-                    className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      doubleOut
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-card/50 hover:border-primary/50"
-                    }`}
-                  >
+                <RadioGroup value={doubleOut.toString()} onValueChange={v => setDoubleOut(v === "true")} className="space-y-3">
+                  <label htmlFor="double-on" className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${doubleOut ? "border-primary bg-primary/10" : "border-border bg-card/50 hover:border-primary/50"}`}>
                     <RadioGroupItem value="true" id="double-on" className="mt-1" />
                     <div className="flex-1">
                       <div className="font-semibold">Double Out ON</div>
@@ -146,14 +98,7 @@ const GameConfig = () => {
                       </div>
                     </div>
                   </label>
-                  <label
-                    htmlFor="double-off"
-                    className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      !doubleOut
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-card/50 hover:border-primary/50"
-                    }`}
-                  >
+                  <label htmlFor="double-off" className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${!doubleOut ? "border-primary bg-primary/10" : "border-border bg-card/50 hover:border-primary/50"}`}>
                     <RadioGroupItem value="false" id="double-off" className="mt-1" />
                     <div className="flex-1">
                       <div className="font-semibold">Double Out OFF</div>
@@ -164,26 +109,13 @@ const GameConfig = () => {
                   </label>
                 </RadioGroup>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Cricket config */}
-          {mode === "cricket" && (
-            <div className="space-y-4">
+          {mode === "cricket" && <div className="space-y-4">
               <Label className="text-base sm:text-lg font-semibold">Mode de jeu</Label>
-              <RadioGroup
-                value={cricketMode}
-                onValueChange={(v) => setCricketMode(v as "classic" | "random")}
-                className="space-y-3"
-              >
-                <label
-                  htmlFor="classic"
-                  className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    cricketMode === "classic"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-card/50 hover:border-primary/50"
-                  }`}
-                >
+              <RadioGroup value={cricketMode} onValueChange={v => setCricketMode(v as "classic" | "random")} className="space-y-3">
+                <label htmlFor="classic" className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${cricketMode === "classic" ? "border-primary bg-primary/10" : "border-border bg-card/50 hover:border-primary/50"}`}>
                   <RadioGroupItem value="classic" id="classic" className="mt-1" />
                   <div className="flex-1">
                     <div className="font-semibold">Classique</div>
@@ -192,39 +124,23 @@ const GameConfig = () => {
                     </div>
                   </div>
                 </label>
-                <label
-                  htmlFor="random"
-                  className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    cricketMode === "random"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-card/50 hover:border-primary/50"
-                  }`}
-                >
+                <label htmlFor="random" className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${cricketMode === "random" ? "border-primary bg-primary/10" : "border-border bg-card/50 hover:border-primary/50"}`}>
                   <RadioGroupItem value="random" id="random" className="mt-1" />
                   <div className="flex-1">
                     <div className="font-semibold">Aléatoire</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground mt-1">
-                      7 numéros tirés au hasard
-                    </div>
+                    <div className="text-xs sm:text-sm text-muted-foreground mt-1">6 numéros tirés au hasard</div>
                   </div>
                 </label>
               </RadioGroup>
-            </div>
-          )}
+            </div>}
         </Card>
 
         {/* Start button */}
-        <Button
-          onClick={startGame}
-          size="lg"
-          className="w-full h-14 sm:h-16 text-base sm:text-lg font-bold animate-fade-in-up touch-manipulation"
-        >
+        <Button onClick={startGame} size="lg" className="w-full h-14 sm:h-16 text-base sm:text-lg font-bold animate-fade-in-up touch-manipulation">
           <Play className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
           Commencer la partie
         </Button>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default GameConfig;
