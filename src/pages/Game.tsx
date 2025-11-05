@@ -517,7 +517,7 @@ const Game = () => {
   return (
     <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-hidden">
       <div className="flex-1 overflow-hidden overscroll-none p-3 sm:p-4 flex flex-col">
-        <div className="max-w-2xl mx-auto w-full space-y-3 sm:space-y-4 animate-fade-in overflow-y-auto overscroll-none flex-1">
+        <div className="max-w-2xl mx-auto w-full space-y-3 sm:space-y-4 animate-fade-in overscroll-none flex-1">
         {/* Header */}
         <div className="flex items-center justify-between px-1">
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
