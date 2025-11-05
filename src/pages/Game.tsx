@@ -378,9 +378,9 @@ const Game = () => {
           const marksToRemove = lastThrow.mult;
           const previousMarks = Math.max(0, currentMarks - marksToRemove);
           
-          // If we had already closed (currentMarks >= 3), we scored points for opponents
-          // We need to remove those points
-          if (currentMarks >= 3) {
+          // If number was already closed (previousMarks >= 3), we only scored points
+          // In this case, just remove the points, don't touch the marks
+          if (previousMarks >= 3) {
             const pointsToRemove = lastThrow.base * lastThrow.mult;
             updatedPlayers.forEach((otherPlayer, idx) => {
               if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
@@ -390,10 +390,26 @@ const Game = () => {
                 }
               }
             });
+            // Don't change marks since it was already closed
+          } else {
+            // Number wasn't fully closed yet, we need to remove marks
+            // If we had extra marks that scored points, undo those points
+            if (currentMarks >= 3) {
+              const extraMarks = currentMarks - 3;
+              const pointsToRemove = lastThrow.base * extraMarks;
+              updatedPlayers.forEach((otherPlayer, idx) => {
+                if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
+                  const otherMarks = otherPlayer.cricketMarks[lastThrow.base] || 0;
+                  if (otherMarks < 3) {
+                    otherPlayer.score -= pointsToRemove;
+                  }
+                }
+              });
+            }
+            
+            // Restore previous marks
+            player.cricketMarks[lastThrow.base] = previousMarks;
           }
-          
-          // Restore previous marks
-          player.cricketMarks[lastThrow.base] = previousMarks;
         }
         
         setPlayers(updatedPlayers);
