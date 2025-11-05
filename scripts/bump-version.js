@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+import { readFileSync, writeFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Lire le fichier package.json pour obtenir la version de base
 const packageJson = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8')
+  readFileSync(join(__dirname, '../package.json'), 'utf8')
 );
 
 // Générer un versionCode basé sur le timestamp (nombre de jours depuis 2024-01-01)
@@ -38,8 +42,8 @@ console.log(`   Android versionCode: ${versionCode}`);
 console.log(`   iOS buildNumber: ${versionCode}`);
 
 // Mettre à jour capacitor.config.ts
-const capacitorConfigPath = path.join(__dirname, '../capacitor.config.ts');
-let capacitorConfig = fs.readFileSync(capacitorConfigPath, 'utf8');
+const capacitorConfigPath = join(__dirname, '../capacitor.config.ts');
+let capacitorConfig = readFileSync(capacitorConfigPath, 'utf8');
 
 // Remplacer les versions Android
 capacitorConfig = capacitorConfig.replace(
@@ -62,6 +66,6 @@ capacitorConfig = capacitorConfig.replace(
 );
 
 // Écrire le fichier mis à jour
-fs.writeFileSync(capacitorConfigPath, capacitorConfig, 'utf8');
+writeFileSync(capacitorConfigPath, capacitorConfig, 'utf8');
 
 console.log('✅ Versions mises à jour avec succès!');
