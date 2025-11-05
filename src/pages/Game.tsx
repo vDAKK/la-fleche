@@ -21,7 +21,7 @@ interface GamePlayer extends Player {
   turnHistory?: { base: number; mult: number }[][];
 }
 
-type DartThrow = { base: number; mult: number; preMarks?: number; wasClosedBefore?: boolean; extraMarksUsed?: number };
+type DartThrow = { base: number; mult: number; preMarks?: number; wasClosedBefore?: boolean; extraMarksUsed?: number; marksCounted?: number };
 
 const Game = () => {
   const navigate = useNavigate();
@@ -434,8 +434,10 @@ const Game = () => {
 
             player.cricketMarks[lastThrow.base] = preMarks;
           }
+          // Ajuster le MPR: retirer les marques de ce lancer
+          player.totalThrown = Math.max(0, (player.totalThrown || 0) - lastThrow.mult);
         }
-        
+
         setPlayers(updatedPlayers);
       }
       
