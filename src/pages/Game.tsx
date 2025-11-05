@@ -671,7 +671,7 @@ const Game = () => {
               disabled={dartCount === 0 && !previousTurnState}
               className="disabled:opacity-30 ml-1 h-16 w-16 sm:h-20 sm:w-20"
             >
-              <Undo2 className="w-7 h-7 sm:w-8 sm:h-8" />
+              <Undo2 className="w-10 h-10 sm:w-12 sm:h-12" />
             </Button>
           </div>
         </Card>
