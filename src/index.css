@@ -106,7 +106,6 @@ All colors MUST be HSL.
   }
   
   .glow-primary {
-    box-shadow: var(--shadow-glow-primary);
     position: relative;
   }
   
