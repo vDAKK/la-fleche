@@ -666,12 +666,12 @@ const Game = () => {
             ))}
             <Button 
               variant="ghost" 
-              size="icon" 
+              size="lg" 
               onClick={undo} 
               disabled={dartCount === 0 && !previousTurnState}
-              className="disabled:opacity-30 ml-1"
+              className="disabled:opacity-30 ml-1 h-16 w-16 sm:h-20 sm:w-20"
             >
-              <Undo2 className="w-5 h-5" />
+              <Undo2 className="w-7 h-7 sm:w-8 sm:h-8" />
             </Button>
           </div>
         </Card>
