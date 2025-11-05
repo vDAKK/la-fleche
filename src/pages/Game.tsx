@@ -563,10 +563,10 @@ const Game = () => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <div className="font-bold text-xs truncate">{player.name}</div>
-                  {gameMode === "cricket" && player.cricketMarks && player.turnsPlayed && player.turnsPlayed > 0 && (
+                  {gameMode === "cricket" && player.cricketMarks && (player.turnsPlayed || 0) > 0 && (
                     <div className="text-xs text-foreground font-bold flex items-center gap-0.5">
                       <TrendingUp className="w-3.5 h-3.5" />
-                      {(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / player.turnsPlayed).toFixed(1)}
+                      {(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / (player.turnsPlayed || 1)).toFixed(1)}
                     </div>
                   )}
                 </div>
