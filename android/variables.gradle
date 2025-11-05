@@ -1,0 +1,21 @@
+ext {
+    // SDK Versions
+    minSdkVersion = 23  // Android 6.0+ (Capacitor 7 default) | Change to 21 for Android 5.0+
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+    
+    // Build Tools
+    androidxActivityVersion = '1.8.0'
+    androidxAppCompatVersion = '1.6.1'
+    androidxCoordinatorLayoutVersion = '1.2.0'
+    androidxCoreVersion = '1.12.0'
+    androidxFragmentVersion = '1.6.2'
+    coreSplashScreenVersion = '1.0.1'
+    androidxWebkitVersion = '1.9.0'
+    
+    // Kotlin
+    kotlinVersion = '1.9.10'
+    
+    // Gradle plugin
+    gradlePluginVersion = '8.2.1'
+}

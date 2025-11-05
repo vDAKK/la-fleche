@@ -60,6 +60,12 @@ jobs:
           else
             echo "Android platform already present with Gradle wrapper."
           fi
+          
+          # Copy custom SDK configuration
+          if [ -f android/variables.gradle ]; then
+            echo "✓ Using custom android/variables.gradle"
+          fi
+          
           npx cap sync android
 
       - name: Ensure version codes after sync
