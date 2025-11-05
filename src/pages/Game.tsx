@@ -591,7 +591,7 @@ const Game = () => {
 
         {/* Players Scores */}
         <ScrollArea className={`overflow-visible overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 p-3 ${getScoresHeightClass()}`}>
-          <div className={`grid gap-3 pb-3 pt-2 pr-2 overflow-visible ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+          <div className={`grid gap-3 pb-3 pt-2 px-3 overflow-visible ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
             {players.map((player, idx) => {
               const turnScore = gameMode === "sudden-death" ? (roundScores.get(player.id) || 0) : null;
               const isInDanger = gameMode === "sudden-death" 
