@@ -250,32 +250,7 @@ const Game = () => {
     player.totalThrown = (player.totalThrown || 0) + turnTotal;
 
     if (gameMode === "cricket") {
-      // Process each throw for cricket
-      throws.forEach((dart) => {
-        if (cricketNumbers.includes(dart.base) && player.cricketMarks) {
-          const currentMarks = player.cricketMarks[dart.base] || 0;
-          const marksToAdd = dart.mult;
-          const newMarks = Math.min(currentMarks + marksToAdd, 3);
-          const extraMarks = Math.max(0, currentMarks + marksToAdd - 3);
-
-          // Update marks
-          player.cricketMarks[dart.base] = newMarks;
-
-          // Score points for OTHER players who haven't closed this number
-          if (extraMarks > 0) {
-            updatedPlayers.forEach((otherPlayer, idx) => {
-              if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
-                const otherMarks = otherPlayer.cricketMarks[dart.base] || 0;
-                if (otherMarks < 3) {
-                  otherPlayer.score += dart.base * extraMarks;
-                }
-              }
-            });
-          }
-        }
-      });
-
-      // Check win
+      // Cricket scores are already updated in handleScore, just check win
       const allClosed =
         player.cricketMarks &&
         cricketNumbers.every((n) => (player.cricketMarks![n] || 0) >= 3);
@@ -383,6 +358,40 @@ const Game = () => {
   const undo = () => {
     if (dartCount > 0) {
       // Undo current throw
+      const lastThrow = currentThrows[currentThrows.length - 1];
+      
+      // For cricket, undo the score changes
+      if (gameMode === "cricket" && lastThrow) {
+        const updatedPlayers = [...players];
+        const player = updatedPlayers[currentPlayerIndex];
+        
+        if (cricketNumbers.includes(lastThrow.base) && player.cricketMarks) {
+          const currentMarks = player.cricketMarks[lastThrow.base] || 0;
+          const marksToRemove = lastThrow.mult;
+          const previousMarks = Math.max(0, currentMarks - marksToRemove);
+          
+          // If we had extra marks that scored points, undo those points
+          if (currentMarks === 3 && previousMarks < 3) {
+            const extraMarks = Math.max(0, (previousMarks + marksToRemove) - 3);
+            if (extraMarks > 0) {
+              updatedPlayers.forEach((otherPlayer, idx) => {
+                if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
+                  const otherMarks = otherPlayer.cricketMarks[lastThrow.base] || 0;
+                  if (otherMarks < 3) {
+                    otherPlayer.score -= lastThrow.base * extraMarks;
+                  }
+                }
+              });
+            }
+          }
+          
+          // Restore previous marks
+          player.cricketMarks[lastThrow.base] = previousMarks;
+        }
+        
+        setPlayers(updatedPlayers);
+      }
+      
       setCurrentThrows(currentThrows.slice(0, -1));
       setDartCount(dartCount - 1);
       setMultiplier(1);
