@@ -5,12 +5,12 @@ const config: CapacitorConfig = {
   appName: 'La Flèche',
   webDir: 'dist',
   android: {
-    versionCode: 2,  // Augmenter de 1 à chaque build
-    versionName: '1.0.1'  // Version affichée (1.0.0 → 1.0.1 → 1.1.0, etc.)
+    versionCode: 674,  // Auto-généré par le script bump-version.js
+    versionName: '1.0.2'  // Auto-généré par le script bump-version.js
   },
   ios: {
-    buildNumber: '2',  // Augmenter de 1 à chaque build (string)
-    version: '1.0.1'  // Version affichée
+    buildNumber: '674',  // Auto-généré par le script bump-version.js
+    version: '1.0.2'  // Auto-généré par le script bump-version.js
   }
 };
 
