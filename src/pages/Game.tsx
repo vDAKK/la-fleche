@@ -220,6 +220,9 @@ const Game = () => {
             }
           });
         }
+        
+        // Increment totalThrown only for valid cricket number hits (for MPR calculation)
+        player.totalThrown = (player.totalThrown || 0) + marksToAdd;
       }
 
       setPlayers(updatedPlayers);
@@ -267,8 +270,12 @@ const Game = () => {
     
     // Track statistics
     player.turnsPlayed = (player.turnsPlayed || 0) + 1;
-    const turnTotal = throws.reduce((a, b) => a + b.base * b.mult, 0);
-    player.totalThrown = (player.totalThrown || 0) + turnTotal;
+    
+    // For non-cricket modes, track total thrown for average calculation
+    if (gameMode !== "cricket") {
+      const turnTotal = throws.reduce((a, b) => a + b.base * b.mult, 0);
+      player.totalThrown = (player.totalThrown || 0) + turnTotal;
+    }
 
     if (gameMode === "cricket") {
       // Cricket scores are already updated in handleScore, just check win
