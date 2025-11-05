@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -12,11 +12,10 @@ const packageJson = JSON.parse(
   readFileSync(join(__dirname, '../package.json'), 'utf8')
 );
 
-// Générer un versionCode basé sur le timestamp (nombre de jours depuis 2024-01-01)
-const baseDate = new Date('2024-01-01');
-const today = new Date();
-const daysSinceBase = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24));
-const versionCode = daysSinceBase;
+// Générer un versionCode unique (secondes depuis 2024-01-01) pour éviter les doublons
+const baseDate = new Date('2024-01-01T00:00:00Z');
+const secondsSinceBase = Math.floor((Date.now() - baseDate.getTime()) / 1000);
+const versionCode = secondsSinceBase;
 
 // Lire la version actuelle ou utiliser celle du package.json
 let version = packageJson.version || '1.0.0';
@@ -67,5 +66,22 @@ capacitorConfig = capacitorConfig.replace(
 
 // Écrire le fichier mis à jour
 writeFileSync(capacitorConfigPath, capacitorConfig, 'utf8');
+
+// Mise à jour directe d'Android (sécurité pour builds locaux)
+const androidGradlePath = join(__dirname, '../android/app/build.gradle');
+try {
+  if (existsSync(androidGradlePath)) {
+    let gradle = readFileSync(androidGradlePath, 'utf8');
+    const before = gradle;
+    gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`);
+    gradle = gradle.replace(/versionName\s+\"[^\"]*\"/, `versionName "${newVersion}"`);
+    if (gradle !== before) {
+      writeFileSync(androidGradlePath, gradle, 'utf8');
+      console.log('🔧 android/app/build.gradle mis à jour directement.');
+    }
+  }
+} catch (e) {
+  console.warn('⚠️ Impossible de mettre à jour android/app/build.gradle:', e.message);
+}
 
 console.log('✅ Versions mises à jour avec succès!');
