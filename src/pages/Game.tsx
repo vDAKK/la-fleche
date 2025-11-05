@@ -182,6 +182,37 @@ const Game = () => {
     setCurrentThrows(newThrows);
     setDartCount(dartCount + 1);
 
+    // Update score immediately for cricket
+    if (gameMode === "cricket") {
+      const updatedPlayers = [...players];
+      const player = updatedPlayers[currentPlayerIndex];
+      const dart = { base: baseScore, mult: multiplier };
+      
+      if (cricketNumbers.includes(dart.base) && player.cricketMarks) {
+        const currentMarks = player.cricketMarks[dart.base] || 0;
+        const marksToAdd = dart.mult;
+        const newMarks = Math.min(currentMarks + marksToAdd, 3);
+        const extraMarks = Math.max(0, currentMarks + marksToAdd - 3);
+
+        // Update marks
+        player.cricketMarks[dart.base] = newMarks;
+
+        // Score points for OTHER players who haven't closed this number
+        if (extraMarks > 0) {
+          updatedPlayers.forEach((otherPlayer, idx) => {
+            if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
+              const otherMarks = otherPlayer.cricketMarks[dart.base] || 0;
+              if (otherMarks < 3) {
+                otherPlayer.score += dart.base * extraMarks;
+              }
+            }
+          });
+        }
+      }
+      
+      setPlayers(updatedPlayers);
+    }
+
     // For 501 mode, check immediately if player reached 0
     if (gameMode === "501") {
       const total = newThrows.reduce((a, b) => a + b.base * b.mult, 0);
@@ -493,15 +524,7 @@ const Game = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-2xl sm:text-3xl font-bold">{getGameModeName(gameMode)}</h1>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={undo} 
-            disabled={dartCount === 0 && !previousTurnState}
-            className="disabled:opacity-30"
-          >
-            <Undo2 className="w-5 h-5" />
-          </Button>
+          <div className="w-11"></div>
         </div>
 
         {/* Players Scores */}
@@ -578,7 +601,7 @@ const Game = () => {
           <div className="text-center text-sm sm:text-base font-bold mb-3">
             <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
           </div>
-          <div className="flex justify-center gap-2 sm:gap-3">
+          <div className="flex justify-center items-center gap-2 sm:gap-3">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -590,9 +613,24 @@ const Game = () => {
                     : "bg-muted/30 border-muted"
                 }`}
               >
-                {currentThrows[i] ? currentThrows[i].base * currentThrows[i].mult : ""}
+                {currentThrows[i] 
+                  ? currentThrows[i].mult === 2 
+                    ? `D${currentThrows[i].base}` 
+                    : currentThrows[i].mult === 3 
+                    ? `T${currentThrows[i].base}` 
+                    : currentThrows[i].base 
+                  : ""}
               </div>
             ))}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={undo} 
+              disabled={dartCount === 0 && !previousTurnState}
+              className="disabled:opacity-30 ml-1"
+            >
+              <Undo2 className="w-5 h-5" />
+            </Button>
           </div>
         </Card>
 
