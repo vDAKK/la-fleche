@@ -602,9 +602,9 @@ const Game = () => {
               return (
               <Card
                 key={player.id}
-                className={`p-2 sm:p-3 glass-card transition-all duration-300 ${
+                className={`p-2 sm:p-3 glass-card transition-all duration-300 overflow-visible ${
                   idx === currentPlayerIndex
-                    ? "border-2 border-primary bg-primary/10 shadow-lg glow-primary"
+                    ? "border-2 border-primary bg-primary/20 shadow-lg glow-primary scale-[1.02]"
                     : isInDanger
                     ? "border-2 border-destructive bg-destructive/10 shadow-lg shadow-destructive/30 animate-pulse"
                     : "border border-border/50 opacity-70"
