@@ -568,7 +568,23 @@ const Game = () => {
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <div className="font-bold text-xs truncate">{player.name}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="font-bold text-xs truncate">{player.name}</div>
+                    {/* Turn History */}
+                    {player.turnHistory && player.turnHistory.length > 0 && (
+                      <div className="flex gap-1 text-xs font-medium text-foreground/80">
+                        {player.turnHistory.slice(-3).map((turn, turnIdx) => (
+                          <div key={turnIdx} className="flex gap-0.5">
+                            {turn.map((dart, dartIdx) => (
+                              <span key={dartIdx} className="bg-secondary/60 text-foreground px-1.5 py-0.5 rounded">
+                                {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
+                              </span>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   {gameMode === "cricket" && player.cricketMarks && (player.turnsPlayed || 0) > 0 && (
                     <div className="text-xs text-foreground font-bold flex items-center gap-0.5">
                       <TrendingUp className="w-3.5 h-3.5" />
@@ -579,21 +595,6 @@ const Game = () => {
                 <div className="text-xl sm:text-2xl font-bold text-primary">
                   {gameMode === "sudden-death" ? turnScore : player.score}
                 </div>
-
-                {/* Turn History */}
-                {player.turnHistory && player.turnHistory.length > 0 && (
-                  <div className="mt-1.5 text-[9px] text-muted-foreground">
-                    {player.turnHistory.slice(-3).map((turn, turnIdx) => (
-                      <div key={turnIdx} className="flex gap-0.5 mb-0.5">
-                        {turn.map((dart, dartIdx) => (
-                          <span key={dartIdx} className="bg-muted/20 px-1 rounded">
-                            {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
-                          </span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                )}
 
                 {/* Cricket marks */}
                 {gameMode === "cricket" && player.cricketMarks && (

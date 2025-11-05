@@ -20,11 +20,11 @@ All colors MUST be HSL.
     --primary: 142 76% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 20%;
+    --secondary: 220 15% 25%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 15% 20%;
-    --muted-foreground: 220 10% 60%;
+    --muted: 220 15% 25%;
+    --muted-foreground: 0 0% 75%;
 
     --accent: 142 76% 45%;
     --accent-foreground: 0 0% 100%;
@@ -32,8 +32,8 @@ All colors MUST be HSL.
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 22%;
-    --input: 220 15% 22%;
+    --border: 220 15% 30%;
+    --input: 220 15% 30%;
     --ring: 142 76% 45%;
 
     --radius: 1rem;
