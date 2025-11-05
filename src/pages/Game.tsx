@@ -41,6 +41,7 @@ const Game = () => {
   const [previousTurnState, setPreviousTurnState] = useState<{
     players: GamePlayer[];
     playerIndex: number;
+    throws: { base: number; mult: number }[];
   } | null>(null);
   const [cricketNumbers, setCricketNumbers] = useState<number[]>([]);
   const [roundScores, setRoundScores] = useState<Map<string, number>>(new Map());
@@ -239,6 +240,7 @@ const Game = () => {
     setPreviousTurnState({
       players: JSON.parse(JSON.stringify(players)),
       playerIndex: currentPlayerIndex,
+      throws: [...throws],
     });
 
     const updatedPlayers = [...players];
@@ -396,15 +398,17 @@ const Game = () => {
       setDartCount(dartCount - 1);
       setMultiplier(1);
     } else if (previousTurnState) {
-      // Undo previous player's turn
+      // Revenir au tour précédent avec les lancers affichés (sans annuler le score en cricket)
       setPlayers(previousTurnState.players);
       setCurrentPlayerIndex(previousTurnState.playerIndex);
-      setDartCount(0);
-      setCurrentThrows([]);
+      setCurrentThrows(previousTurnState.throws || []);
+      setDartCount(previousTurnState.throws ? previousTurnState.throws.length : 0);
       setMultiplier(1);
       setPreviousTurnState(null);
-      setRoundScores(new Map()); // Reset round scores
-      toast.info("Tour précédent annulé");
+      if (gameMode === "sudden-death") {
+        setRoundScores(new Map());
+      }
+      toast.info("Retour au tour précédent");
     }
   };
 
