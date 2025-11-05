@@ -637,6 +637,10 @@ const Game = () => {
               ? currentPlayer.cricketMarks[num] || 0 
               : 0;
             
+            // Vérifier si ce numéro peut rapporter des points
+            const canScore = gameMode === "cricket" && currentMarks >= 3 && 
+              players.some((p, idx) => idx !== currentPlayerIndex && p.cricketMarks && (p.cricketMarks[num] || 0) < 3);
+            
             return (
               <Button
                 key={num}
@@ -657,7 +661,9 @@ const Game = () => {
                     : gameMode === "cricket" && currentMarks === 2
                     ? "border-orange-500/50 bg-orange-500/10"
                     : gameMode === "cricket" && currentMarks >= 3
-                    ? "border-primary/60 bg-primary/15"
+                    ? canScore
+                      ? "border-primary/60 bg-primary/15 shadow-[0_0_20px_hsl(var(--primary)/0.4)] animate-pulse-glow"
+                      : "border-primary/60 bg-primary/15"
                     : ""
                 }`}
               >
