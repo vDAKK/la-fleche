@@ -577,8 +577,8 @@ const Game = () => {
   const lowestTurnScore = getLowestTurnScore();
 
   return (
-    <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-hidden">
-      <div className="flex-1 overflow-hidden overscroll-none p-3 sm:p-4 flex flex-col">
+    <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-y-hidden overflow-x-visible">
+      <div className="flex-1 overflow-y-hidden overflow-x-visible overscroll-none p-3 sm:p-4 flex flex-col">
         <div className="max-w-2xl mx-auto w-full space-y-3 sm:space-y-4 animate-fade-in overscroll-none flex-1">
         {/* Header */}
         <div className="flex items-center justify-between px-1">
@@ -591,7 +591,7 @@ const Game = () => {
 
         {/* Players Scores */}
         <ScrollArea className={`overflow-visible overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 p-3 ${getScoresHeightClass()}`}>
-          <div className={`grid gap-3 pb-3 overflow-visible ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+          <div className={`grid gap-3 pb-3 pt-2 pr-2 overflow-visible ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
             {players.map((player, idx) => {
               const turnScore = gameMode === "sudden-death" ? (roundScores.get(player.id) || 0) : null;
               const isInDanger = gameMode === "sudden-death" 
