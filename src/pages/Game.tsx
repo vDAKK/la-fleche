@@ -18,6 +18,7 @@ interface GamePlayer extends Player {
   lives?: number;
   turnsPlayed?: number;
   totalThrown?: number;
+  turnHistory?: { base: number; mult: number }[][];
 }
 
 const Game = () => {
@@ -169,6 +170,7 @@ const Game = () => {
       lives: gameMode === "sudden-death" ? configLives : undefined,
       turnsPlayed: 0,
       totalThrown: 0,
+      turnHistory: [],
     }));
 
     setPlayers(gamePlayers);
@@ -245,6 +247,10 @@ const Game = () => {
 
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayerIndex];
+    
+    // Save turn to history
+    if (!player.turnHistory) player.turnHistory = [];
+    player.turnHistory.push([...throws]);
     
     // Track statistics
     player.turnsPlayed = (player.turnsPlayed || 0) + 1;
@@ -573,6 +579,21 @@ const Game = () => {
                 <div className="text-xl sm:text-2xl font-bold text-primary">
                   {gameMode === "sudden-death" ? turnScore : player.score}
                 </div>
+
+                {/* Turn History */}
+                {player.turnHistory && player.turnHistory.length > 0 && (
+                  <div className="mt-1.5 text-[9px] text-muted-foreground">
+                    {player.turnHistory.slice(-3).map((turn, turnIdx) => (
+                      <div key={turnIdx} className="flex gap-0.5 mb-0.5">
+                        {turn.map((dart, dartIdx) => (
+                          <span key={dartIdx} className="bg-muted/20 px-1 rounded">
+                            {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
+                          </span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Cricket marks */}
                 {gameMode === "cricket" && player.cricketMarks && (
