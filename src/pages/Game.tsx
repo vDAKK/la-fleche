@@ -561,7 +561,15 @@ const Game = () => {
                     : "border border-border/50 opacity-70"
                 }`}
               >
-                <div className="font-bold text-xs truncate mb-1">{player.name}</div>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="font-bold text-xs truncate">{player.name}</div>
+                  {gameMode === "cricket" && player.cricketMarks && player.turnsPlayed && player.turnsPlayed > 0 && (
+                    <div className="text-[10px] text-muted-foreground font-medium flex items-center gap-0.5">
+                      <TrendingUp className="w-3 h-3" />
+                      {(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / player.turnsPlayed).toFixed(1)}
+                    </div>
+                  )}
+                </div>
                 <div className="text-xl sm:text-2xl font-bold text-primary">
                   {gameMode === "sudden-death" ? turnScore : player.score}
                 </div>
