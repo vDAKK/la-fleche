@@ -610,8 +610,8 @@ const Game = () => {
                     : "border border-border/50 opacity-70"
                 }`}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
                     <div className="font-bold text-xs truncate">{player.name}</div>
                     {/* Turn History */}
                     {player.turnHistory && player.turnHistory.length > 0 && (
@@ -628,14 +628,17 @@ const Game = () => {
                       </div>
                     )}
                   </div>
+                  
+                  {/* MPR visible sur une ligne dédiée */}
                   {gameMode === "cricket" && player.cricketMarks && (player.turnsPlayed || 0) > 0 && (
-                    <div className="text-xs text-foreground font-bold flex items-center gap-0.5">
-                      <TrendingUp className="w-3.5 h-3.5" />
-                      {(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / (player.turnsPlayed || 1)).toFixed(1)}
+                    <div className="flex items-center gap-1 text-xs sm:text-sm text-accent font-bold">
+                      <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span>MPR: {(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / (player.turnsPlayed || 1)).toFixed(1)}</span>
                     </div>
                   )}
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-primary">
+                
+                <div className="text-xl sm:text-2xl font-bold text-primary mt-1">
                   {gameMode === "sudden-death" ? turnScore : player.score}
                 </div>
 
