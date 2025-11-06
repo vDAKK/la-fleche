@@ -175,7 +175,9 @@ const Game = () => {
       turnHistory: [],
     }));
 
-    setPlayers(gamePlayers);
+    // Randomize player order
+    const shuffledPlayers = gamePlayers.sort(() => Math.random() - 0.5);
+    setPlayers(shuffledPlayers);
   }, []); // Run only once
 
   const currentPlayer = players[currentPlayerIndex];
@@ -555,14 +557,12 @@ const Game = () => {
 
   const getScoresHeightClass = () => {
     if (gameMode === "cricket") {
-      if (players.length <= 2) return "h-[24vh] sm:h-[28vh]";
-      if (players.length === 3) return "h-[34vh] sm:h-[38vh]";
-      return "h-[40vh] sm:h-[45vh]"; // 4+ joueurs: hauteur max
+      if (players.length <= 2) return "h-[20vh] sm:h-[22vh]";
+      return "h-[32vh] sm:h-[36vh]"; // 3+ joueurs
     }
     // 501 & sudden-death: cartes plus compactes
-    if (players.length <= 2) return "h-[16vh] sm:h-[20vh]";
-    if (players.length === 3) return "h-[22vh] sm:h-[26vh]";
-    return "h-[28vh] sm:h-[30vh]"; // 4+ joueurs
+    if (players.length <= 2) return "h-[14vh] sm:h-[16vh]";
+    return "h-[24vh] sm:h-[26vh]"; // 3+ joueurs
   };
 
   // Pour la mort subite, déterminer le(s) joueur(s) en danger
@@ -591,7 +591,7 @@ const Game = () => {
 
         {/* Players Scores */}
         <ScrollArea className={`overflow-visible overscroll-contain touch-pan-y w-full rounded-lg border border-border/30 p-3 ${getScoresHeightClass()}`}>
-          <div className={`grid gap-3 pb-3 pt-2 px-3 overflow-visible ${players.length === 2 ? 'grid-cols-2' : players.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+          <div className="grid grid-cols-2 gap-3 pb-3 pt-2 px-3 overflow-visible">
             {players.map((player, idx) => {
               const turnScore = gameMode === "sudden-death" ? (roundScores.get(player.id) || 0) : null;
               const isInDanger = gameMode === "sudden-death" 
@@ -610,41 +610,43 @@ const Game = () => {
                     : "border border-border/50 opacity-70"
                 }`}
               >
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <div className="font-bold text-xs truncate">{player.name}</div>
-                    {/* Turn History */}
-                    {player.turnHistory && player.turnHistory.length > 0 && (
-                      <div className="flex gap-1 text-xs font-medium text-foreground/80">
-                        {player.turnHistory.slice(-1).map((turn, turnIdx) => (
-                          <div key={turnIdx} className="flex gap-0.5">
-                            {turn.map((dart, dartIdx) => (
-                              <span key={dartIdx} className="bg-secondary/60 text-foreground px-1.5 py-0.5 rounded">
-                                {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
-                              </span>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* MPR visible sur une ligne dédiée */}
-                  {gameMode === "cricket" && player.cricketMarks && (player.turnsPlayed || 0) > 0 && (
-                    <div className="flex items-center gap-1 text-xs sm:text-sm text-accent font-bold">
-                      <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      <span>MPR: {(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / (player.turnsPlayed || 1)).toFixed(1)}</span>
+                {/* Nom et historique toujours visibles */}
+                <div className="flex items-center justify-between mb-1">
+                  <div className="font-bold text-xs sm:text-sm truncate">{player.name}</div>
+                  {/* Turn History */}
+                  {player.turnHistory && player.turnHistory.length > 0 && (
+                    <div className="flex gap-1 text-xs font-medium text-foreground/80">
+                      {player.turnHistory.slice(-1).map((turn, turnIdx) => (
+                        <div key={turnIdx} className="flex gap-0.5">
+                          {turn.map((dart, dartIdx) => (
+                            <span key={dartIdx} className="bg-secondary/60 text-foreground px-1.5 py-0.5 rounded">
+                              {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
                 
-                <div className="text-xl sm:text-2xl font-bold text-primary mt-1">
-                  {gameMode === "sudden-death" ? turnScore : player.score}
+                {/* Score et MPR côte à côte */}
+                <div className="flex items-end justify-between">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary">
+                    {gameMode === "sudden-death" ? turnScore : player.score}
+                  </div>
+                  
+                  {/* MPR en bas à droite */}
+                  {gameMode === "cricket" && player.cricketMarks && (player.turnsPlayed || 0) > 0 && (
+                    <div className="flex items-center gap-1 text-xs text-accent font-bold">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>{(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / (player.turnsPlayed || 1)).toFixed(1)}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Cricket marks */}
                 {gameMode === "cricket" && player.cricketMarks && (
-                  <ScrollArea className="mt-1.5 h-24 overscroll-contain touch-pan-y w-full">
+                  <ScrollArea className="mt-2 h-20 overscroll-contain touch-pan-y w-full">
                     <div className="grid grid-cols-4 gap-0.5 pr-1 pb-1">
                       {cricketNumbers.map((num) => {
                         const marks = player.cricketMarks![num] || 0;
