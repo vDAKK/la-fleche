@@ -1,9 +1,12 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
+import { SplashScreen } from "@capacitor/splash-screen";
+import { AppSplashScreen } from "./components/AppSplashScreen";
 import Home from "./pages/Home";
 import Players from "./pages/Players";
 import GameConfig from "./pages/GameConfig";
@@ -13,9 +16,24 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
+  const [showSplash, setShowSplash] = useState(true);
   const isNative = Capacitor.isNativePlatform();
   const Router = isNative ? HashRouter : BrowserRouter;
   const routerProps = isNative ? {} : { basename: import.meta.env.BASE_URL };
+
+  useEffect(() => {
+    if (isNative) {
+      SplashScreen.hide();
+    }
+  }, [isNative]);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
+  if (showSplash && isNative) {
+    return <AppSplashScreen onComplete={handleSplashComplete} />;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
