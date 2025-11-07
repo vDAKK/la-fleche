@@ -158,6 +158,18 @@ All colors MUST be HSL.
       transform: scale(1.05);
     }
   }
+
+  @keyframes player-focus {
+    0% { 
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.25);
+    }
+    50% { 
+      box-shadow: 0 0 40px hsl(var(--primary) / 0.8), 0 0 80px hsl(var(--primary) / 0.4);
+    }
+    100% { 
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.25);
+    }
+  }
   
   .animate-float {
     animation: float 3s ease-in-out infinite;
@@ -165,5 +177,9 @@ All colors MUST be HSL.
 
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-player-focus {
+    animation: player-focus 2s ease-in-out infinite;
   }
 }
