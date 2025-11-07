@@ -19,7 +19,7 @@ const config: CapacitorConfig = {
       launchFadeOutDuration: 500,
       backgroundColor: "#1a1a1a",
       androidSplashResourceName: "splash",
-      androidScaleType: "FIT_CENTER",
+      androidScaleType: "CENTER_INSIDE",
       showSpinner: false,
       androidSpinnerStyle: "large",
       iosSpinnerStyle: "small",
