@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -50,8 +50,6 @@ const Game = () => {
   const [roundScores, setRoundScores] = useState<Map<string, number>>(new Map());
   const [winner, setWinner] = useState<GamePlayer | null>(null);
   const [showVictoryDialog, setShowVictoryDialog] = useState(false);
-  const playerRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Save game state to localStorage
   useEffect(() => {
@@ -183,20 +181,6 @@ const Game = () => {
   }, []); // Run only once
 
   const currentPlayer = players[currentPlayerIndex];
-
-  // Auto-scroll to current player
-  useEffect(() => {
-    if (players.length > 0 && playerRefs.current[currentPlayerIndex]) {
-      const currentCard = playerRefs.current[currentPlayerIndex];
-      if (currentCard) {
-        currentCard.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center'
-        });
-      }
-    }
-  }, [currentPlayerIndex, players.length]);
 
   const allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25];
 
@@ -618,10 +602,9 @@ const Game = () => {
               return (
               <Card
                 key={player.id}
-                ref={(el) => (playerRefs.current[idx] = el)}
-                className={`p-2 sm:p-3 glass-card transition-all duration-500 overflow-visible ${
+                className={`p-2 sm:p-3 glass-card transition-all duration-300 overflow-visible ${
                   idx === currentPlayerIndex
-                    ? "border-2 border-primary bg-primary/20 shadow-lg glow-primary scale-105 animate-player-focus"
+                    ? "border-2 border-primary bg-primary/20 shadow-lg glow-primary scale-[1.02]"
                     : isInDanger
                     ? "border-2 border-destructive bg-destructive/10 shadow-lg shadow-destructive/30 animate-pulse"
                     : "border border-border/50 opacity-70"

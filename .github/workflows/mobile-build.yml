@@ -72,7 +72,7 @@ jobs:
         run: node scripts/bump-version.js
 
       - name: Generate Android app icons and splash
-        run: npx @capacitor/assets generate --android --splash resources/splash.png --icon resources/icon.png --splashBackgroundColor "#1a1a1a"
+        run: npx capacitor-assets generate --android
 
       - name: Decode Keystore
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
@@ -158,7 +158,7 @@ jobs:
           npx cap sync ios
 
       - name: Generate iOS app icons and splash
-        run: npx @capacitor/assets generate --ios --splash resources/splash.png --icon resources/icon.png --splashBackgroundColor "#1a1a1a"
+        run: npx capacitor-assets generate --ios
       - name: Install CocoaPods
         run: |
           cd ios/App
