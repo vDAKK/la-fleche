@@ -358,6 +358,24 @@ const Game = () => {
 
         // Clear round scores for next round
         setRoundScores(new Map());
+        
+        // Randomize player order for next round in sudden death
+        const alive = updatedPlayers.filter((p) => (p.lives || 0) > 0);
+        const dead = updatedPlayers.filter((p) => (p.lives || 0) <= 0);
+        const shuffledAlive = alive.sort(() => Math.random() - 0.5);
+        const reorderedPlayers = [...shuffledAlive, ...dead];
+        
+        // Update players with new order
+        setPlayers(reorderedPlayers);
+        
+        // Reset to first player
+        setCurrentPlayerIndex(0);
+        setDartCount(0);
+        setCurrentThrows([]);
+        setMultiplier(1);
+        
+        toast.info("Nouveau round - ordre des joueurs mélangé!");
+        return;
       } else {
         setRoundScores(newRoundScores);
       }
@@ -562,7 +580,7 @@ const Game = () => {
     }
     // 501 & sudden-death: cartes plus compactes
     if (players.length <= 2) return "h-[14vh] sm:h-[16vh]";
-    return "h-[24vh] sm:h-[26vh]"; // 3+ joueurs
+    return "h-[22vh] sm:h-[24vh]"; // 3+ joueurs - réduire pour laisser plus d'espace au number pad
   };
 
   // Pour la mort subite, déterminer le(s) joueur(s) en danger
@@ -629,9 +647,9 @@ const Game = () => {
                   )}
                 </div>
                 
-                {/* Score et MPR côte à côte */}
+                 {/* Score et MPR côte à côte */}
                 <div className="flex items-end justify-between">
-                  <div className="text-2xl sm:text-3xl font-bold text-primary">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary leading-none">
                     {gameMode === "sudden-death" ? turnScore : player.score}
                   </div>
                   
