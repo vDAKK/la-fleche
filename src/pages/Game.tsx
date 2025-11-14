@@ -794,7 +794,7 @@ const Game = () => {
                 variant="score"
                 onClick={() => handleScore(num)}
                 disabled={num === 25 && multiplier === 3}
-                className={`h-14 sm:h-16 text-base sm:text-lg font-bold transition-all touch-manipulation relative ${
+                className={`h-12 sm:h-14 text-base sm:text-lg font-bold transition-all touch-manipulation relative ${
                   num === 25 ? "col-span-2" : ""
                 } ${
                   multiplier === 2
