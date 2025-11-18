@@ -356,6 +356,14 @@ const Game = () => {
           }
         });
 
+        // Check if only one player is left alive
+        const remainingAlive = updatedPlayers.filter((p) => (p.lives || 0) > 0);
+        if (remainingAlive.length === 1) {
+          setWinner(remainingAlive[0]);
+          setShowVictoryDialog(true);
+          return;
+        }
+
         // Clear round scores for next round
         setRoundScores(new Map());
         
