@@ -883,12 +883,7 @@ const Game = () => {
             <Button
               variant="destructive"
               size="lg"
-              onClick={() => {
-                if (dartCount > 0) {
-                  processTurn(currentThrows);
-                }
-              }}
-              disabled={dartCount === 0}
+              onClick={() => processTurn(currentThrows)}
               className="h-10 text-sm font-bold"
             >
               NEXT
