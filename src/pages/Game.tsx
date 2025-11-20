@@ -830,26 +830,16 @@ const Game = () => {
             BULL
           </Button>
 
-          {/* Miss and Next Buttons */}
-          <div className="grid grid-cols-2 gap-1.5">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => handleScore(0)}
-              disabled={dartCount >= 3}
-              className="h-10 text-sm font-bold bg-background"
-            >
-              MISS
-            </Button>
-            <Button
-              variant="destructive"
-              size="lg"
-              onClick={() => processTurn(currentThrows)}
-              className="h-10 text-sm font-bold"
-            >
-              NEXT
-            </Button>
-          </div>
+          {/* Miss Button */}
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => handleScore(0)}
+            disabled={dartCount >= 3}
+            className="w-full h-10 text-sm font-bold bg-background"
+          >
+            MISS
+          </Button>
         </div>
 
         {/* Victory Dialog */}
