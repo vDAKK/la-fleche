@@ -627,83 +627,106 @@ const Game = () => {
           <div className="w-10"></div>
         </div>
 
-        {/* Player Scores Header */}
-        <div className="grid grid-cols-2 gap-2 p-3 bg-muted/20">
-          {players.map((player, idx) => (
-            <div 
-              key={player.id}
-              className="text-center"
-            >
-              <div className="font-bold text-sm text-foreground">{player.name}</div>
-              <div className="text-3xl font-bold text-foreground">{player.score}</div>
-              {idx === currentPlayerIndex && (
-                <div className="h-1 bg-green-600 rounded-full mt-1"></div>
-              )}
-            </div>
-          ))}
-        </div>
-
         {/* Cricket Board */}
-        <div className="flex-1 overflow-auto px-3">
-          <div className="max-w-md mx-auto">
-            {cricketNumbers.map((num) => (
-              <div key={num} className="grid grid-cols-3 gap-2 mb-2">
-                {/* Player 1 Marks */}
-                <div className="flex items-center justify-center bg-muted/30 rounded h-14">
-                  <span className="text-3xl font-bold text-foreground">
-                    {getMarkSymbol(players[0]?.cricketMarks?.[num] || 0)}
-                  </span>
-                </div>
-                
-                {/* Number */}
-                <div className={`flex items-center justify-center rounded h-14 font-bold text-white text-xl ${
-                  num === 25 ? "bg-red-600" : "bg-green-600"
-                }`}>
-                  {num === 25 ? "Bull" : num}
-                </div>
-                
-                {/* Player 2 Marks */}
-                <div className="flex items-center justify-center bg-muted/30 rounded h-14">
-                  <span className="text-3xl font-bold text-foreground">
-                    {getMarkSymbol(players[1]?.cricketMarks?.[num] || 0)}
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {/* Player Stats */}
-            <div className="grid grid-cols-2 gap-3 mt-4 mb-3">
-              {players.map((player) => (
-                <div key={player.id} className="bg-muted/20 rounded-lg p-2.5 text-xs space-y-1">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Sets: <span className="text-foreground font-bold">0</span></span>
-                    <span>Legs: <span className="text-foreground font-bold">0</span></span>
-                  </div>
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Target className="w-3 h-3" />
-                    <span className="text-foreground font-bold">{dartCount + (player.turnsPlayed || 0) * 3}</span>
-                  </div>
-                  <div className="text-muted-foreground">
-                    MPR: <span className="text-foreground font-bold">{calculateMPR(player)}</span>
-                  </div>
-                  {/* Last 3 darts */}
-                  <div className="flex gap-1 mt-2">
-                    {player.turnHistory && player.turnHistory.length > 0 ? (
-                      player.turnHistory.slice(-1)[0].map((dart, idx) => (
-                        <div key={idx} className="flex-1 bg-muted text-center py-1.5 rounded text-[10px] font-bold">
-                          {dart.mult === 2 ? `T${dart.base}` : dart.mult === 3 ? `16` : dart.base}
-                        </div>
-                      ))
-                    ) : (
-                      <>
-                        <div className="flex-1 bg-muted/50 py-1.5 rounded"></div>
-                        <div className="flex-1 bg-muted/50 py-1.5 rounded"></div>
-                        <div className="flex-1 bg-muted/50 py-1.5 rounded"></div>
-                      </>
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Header with player names */}
+          <div className="flex border-b border-border">
+            {/* Empty corner for number column */}
+            <div className="w-16 flex-shrink-0 bg-muted/30"></div>
+            
+            {/* Player names - scrollable */}
+            <div className="flex-1 overflow-x-auto overflow-y-hidden">
+              <div className="flex">
+                {players.map((player, idx) => (
+                  <div 
+                    key={player.id}
+                    className="w-24 flex-shrink-0 p-2 text-center border-r border-border bg-background"
+                  >
+                    <div className="font-bold text-xs truncate">{player.name}</div>
+                    <div className="text-2xl font-bold">{player.score}</div>
+                    {idx === currentPlayerIndex && (
+                      <div className="h-1 bg-green-600 rounded-full mt-1"></div>
                     )}
                   </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Cricket grid */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="flex h-full">
+              {/* Numbers column - fixed */}
+              <div className="w-16 flex-shrink-0 bg-muted/30">
+                {cricketNumbers.map((num) => (
+                  <div 
+                    key={num} 
+                    className={`h-14 flex items-center justify-center font-bold text-white text-base border-b border-border ${
+                      num === 25 ? "bg-red-600" : "bg-green-600"
+                    }`}
+                  >
+                    {num === 25 ? "Bull" : num}
+                  </div>
+                ))}
+              </div>
+
+              {/* Marks grid - scrollable */}
+              <div className="flex-1 overflow-x-auto overflow-y-hidden">
+                <div className="flex">
+                  {players.map((player) => (
+                    <div key={player.id} className="w-24 flex-shrink-0">
+                      {cricketNumbers.map((num) => (
+                        <div 
+                          key={num}
+                          className="h-14 flex items-center justify-center border-b border-r border-border bg-background"
+                        >
+                          <span className="text-3xl font-bold text-foreground">
+                            {getMarkSymbol(player.cricketMarks?.[num] || 0)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Player Stats - scrollable */}
+          <div className="border-t border-border bg-muted/10">
+            <div className="overflow-x-auto p-2">
+              <div className="flex gap-2" style={{ minWidth: `${players.length * 96}px` }}>
+                {players.map((player) => (
+                  <div key={player.id} className="w-24 flex-shrink-0 bg-muted/20 rounded p-2 text-[10px] space-y-0.5">
+                    <div className="text-muted-foreground text-center">
+                      Sets: <span className="text-foreground font-bold">0</span> Legs: <span className="text-foreground font-bold">0</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-1 text-muted-foreground">
+                      <Target className="w-2.5 h-2.5" />
+                      <span className="text-foreground font-bold text-[9px]">{dartCount + (player.turnsPlayed || 0) * 3}</span>
+                    </div>
+                    <div className="text-center text-muted-foreground">
+                      MPR: <span className="text-foreground font-bold">{calculateMPR(player)}</span>
+                    </div>
+                    {/* Last 3 darts */}
+                    <div className="flex gap-0.5 mt-1">
+                      {player.turnHistory && player.turnHistory.length > 0 ? (
+                        player.turnHistory.slice(-1)[0].map((dart, idx) => (
+                          <div key={idx} className="flex-1 bg-muted text-center py-1 rounded text-[8px] font-bold">
+                            {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
+                          </div>
+                        ))
+                      ) : (
+                        <>
+                          <div className="flex-1 bg-muted/50 py-1 rounded"></div>
+                          <div className="flex-1 bg-muted/50 py-1 rounded"></div>
+                          <div className="flex-1 bg-muted/50 py-1 rounded"></div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
