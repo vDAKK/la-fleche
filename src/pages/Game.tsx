@@ -755,45 +755,6 @@ const Game = () => {
           </div>
         </div>
 
-        {/* Current Turn Indicator */}
-        <div className="px-3 pb-2">
-          <Card className="p-3 glass-card border-primary/20">
-            <div className="text-center text-sm font-bold mb-2">
-              <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
-            </div>
-            <div className="flex justify-center items-center gap-2">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={`w-14 h-14 rounded-lg border-2 flex items-center justify-center text-base font-bold transition-all ${
-                    i < dartCount
-                      ? "bg-gradient-to-br from-secondary to-secondary/80 border-secondary shadow-lg"
-                      : i === dartCount
-                      ? "bg-primary/20 border-primary animate-pulse"
-                      : "bg-muted/30 border-muted"
-                  }`}
-                >
-                  {currentThrows[i] 
-                    ? currentThrows[i].mult === 2 
-                      ? `D${currentThrows[i].base}` 
-                      : currentThrows[i].mult === 3 
-                      ? `T${currentThrows[i].base}` 
-                      : currentThrows[i].base 
-                    : ""}
-                </div>
-              ))}
-              <Button 
-                variant="ghost" 
-                size="lg" 
-                onClick={undo} 
-                disabled={dartCount === 0 && !previousTurnState}
-                className="disabled:opacity-30 h-14 w-14"
-              >
-                <Undo2 className="w-7 h-7" />
-              </Button>
-            </div>
-          </Card>
-        </div>
 
         {/* Number Pad */}
         <div className="px-3 pb-3 space-y-1.5 bg-background">
