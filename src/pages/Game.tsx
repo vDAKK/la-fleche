@@ -614,8 +614,8 @@ const Game = () => {
     return (
       <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
         {/* Header */}
-        <div className="bg-green-600 text-white p-3 flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-white hover:bg-white/20">
+        <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-3 flex items-center justify-between shadow-md">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-primary-foreground hover:bg-primary-foreground/20">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1 text-center">
@@ -630,9 +630,9 @@ const Game = () => {
         {/* Cricket Board */}
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Header with player names */}
-          <div className="flex border-b border-border">
+          <div className="flex border-b-2 border-primary/20">
             {/* Empty corner for number column */}
-            <div className="w-20 sm:w-24 flex-shrink-0 bg-muted/30"></div>
+            <div className="w-20 sm:w-24 flex-shrink-0 bg-gradient-to-br from-muted to-muted/50"></div>
             
             {/* Player names - scrollable */}
             <div className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin">
@@ -640,12 +640,16 @@ const Game = () => {
                 {players.map((player, idx) => (
                   <div 
                     key={player.id}
-                    className="w-28 sm:w-32 flex-shrink-0 p-2 sm:p-3 text-center border-r border-border bg-background"
+                    className={`w-28 sm:w-32 flex-shrink-0 p-2 sm:p-3 text-center border-r border-border transition-all ${
+                      idx === currentPlayerIndex 
+                        ? "bg-primary/10 border-primary" 
+                        : "bg-background"
+                    }`}
                   >
                     <div className="font-bold text-sm sm:text-base truncate">{player.name}</div>
-                    <div className="text-2xl sm:text-3xl font-bold">{player.score}</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-primary">{player.score}</div>
                     {idx === currentPlayerIndex && (
-                      <div className="h-1 bg-green-600 rounded-full mt-1 mx-auto w-3/4"></div>
+                      <div className="h-1 bg-gradient-to-r from-primary to-secondary rounded-full mt-1 mx-auto w-3/4 shadow-sm"></div>
                     )}
                   </div>
                 ))}
@@ -657,12 +661,14 @@ const Game = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="flex h-full">
               {/* Numbers column - fixed */}
-              <div className="w-20 sm:w-24 flex-shrink-0 bg-muted/30">
+              <div className="w-20 sm:w-24 flex-shrink-0 bg-gradient-to-br from-muted to-muted/50">
                 {cricketNumbers.map((num) => (
                   <div 
                     key={num} 
-                    className={`h-16 sm:h-20 flex items-center justify-center font-bold text-white text-lg sm:text-xl border-b border-border ${
-                      num === 25 ? "bg-red-600" : "bg-green-600"
+                    className={`h-16 sm:h-20 flex items-center justify-center font-bold text-lg sm:text-xl border-b border-border/50 ${
+                      num === 25 
+                        ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground" 
+                        : "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground"
                     }`}
                   >
                     {num === 25 ? "Bull" : num}
@@ -678,9 +684,9 @@ const Game = () => {
                       {cricketNumbers.map((num) => (
                         <div 
                           key={num}
-                          className="h-16 sm:h-20 flex items-center justify-center border-b border-r border-border bg-background"
+                          className="h-16 sm:h-20 flex items-center justify-center border-b border-r border-border/50 bg-background hover:bg-muted/30 transition-colors"
                         >
-                          <span className="text-3xl sm:text-4xl font-bold text-foreground">
+                          <span className="text-3xl sm:text-4xl font-bold text-primary">
                             {getMarkSymbol(player.cricketMarks?.[num] || 0)}
                           </span>
                         </div>
@@ -693,35 +699,35 @@ const Game = () => {
           </div>
 
           {/* Player Stats - scrollable */}
-          <div className="border-t border-border bg-muted/10">
+          <div className="border-t-2 border-primary/20 bg-gradient-to-b from-muted/20 to-background">
             <div className="overflow-x-auto p-2 scrollbar-thin">
               <div className="flex gap-2" style={{ minWidth: `${players.length * 112}px` }}>
                 {players.map((player) => (
-                  <div key={player.id} className="w-28 sm:w-32 flex-shrink-0 bg-muted/20 rounded p-2 text-[10px] sm:text-xs space-y-1">
+                  <div key={player.id} className="w-28 sm:w-32 flex-shrink-0 bg-card border border-border/50 rounded-md p-2 text-[10px] sm:text-xs space-y-1 shadow-sm">
                     <div className="text-muted-foreground text-center">
-                      <div>Sets: <span className="text-foreground font-bold">0</span></div>
-                      <div>Legs: <span className="text-foreground font-bold">0</span></div>
+                      <div>Sets: <span className="text-primary font-bold">0</span></div>
+                      <div>Legs: <span className="text-primary font-bold">0</span></div>
                     </div>
                     <div className="flex items-center justify-center gap-1 text-muted-foreground">
-                      <Target className="w-3 h-3" />
-                      <span className="text-foreground font-bold">{(player.turnsPlayed || 0) * 3 + dartCount}</span>
+                      <Target className="w-3 h-3 text-primary" />
+                      <span className="text-primary font-bold">{(player.turnsPlayed || 0) * 3 + dartCount}</span>
                     </div>
                     <div className="text-center text-muted-foreground">
-                      MPR: <span className="text-foreground font-bold">{calculateMPR(player)}</span>
+                      MPR: <span className="text-primary font-bold">{calculateMPR(player)}</span>
                     </div>
                     {/* Last 3 darts */}
                     <div className="flex gap-0.5 mt-1">
                       {player.turnHistory && player.turnHistory.length > 0 ? (
                         player.turnHistory.slice(-1)[0].map((dart, idx) => (
-                          <div key={idx} className="flex-1 bg-muted text-center py-1 rounded text-[9px] sm:text-[10px] font-bold">
+                          <div key={idx} className="flex-1 bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-center py-1 rounded text-[9px] sm:text-[10px] font-bold border border-primary/20">
                             {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
                           </div>
                         ))
                       ) : (
                         <>
-                          <div className="flex-1 bg-muted/50 py-1 rounded"></div>
-                          <div className="flex-1 bg-muted/50 py-1 rounded"></div>
-                          <div className="flex-1 bg-muted/50 py-1 rounded"></div>
+                          <div className="flex-1 bg-muted/30 py-1 rounded border border-border/50"></div>
+                          <div className="flex-1 bg-muted/30 py-1 rounded border border-border/50"></div>
+                          <div className="flex-1 bg-muted/30 py-1 rounded border border-border/50"></div>
                         </>
                       )}
                     </div>
@@ -787,7 +793,13 @@ const Game = () => {
                   size="lg"
                   onClick={() => handleScore(num)}
                   disabled={dartCount >= 3 || (num === 25 && multiplier === 3)}
-                  className="h-12 text-sm font-bold touch-manipulation bg-background border-border"
+                  className={`h-12 text-sm font-bold touch-manipulation transition-all ${
+                    canScore 
+                      ? "border-primary bg-primary/5 hover:bg-primary/20 text-primary" 
+                      : currentMarks >= 3 
+                        ? "border-muted-foreground/30 bg-muted/20" 
+                        : "bg-background border-border"
+                  }`}
                 >
                   {num === 25 ? "25" : num}
                 </Button>
@@ -808,7 +820,11 @@ const Game = () => {
               variant={multiplier === 2 ? "default" : "outline"}
               size="lg"
               onClick={() => setMultiplier(2)}
-              className="h-12 text-xs font-bold touch-manipulation bg-orange-500 hover:bg-orange-600 text-white border-0"
+              className={`h-12 text-xs font-bold touch-manipulation ${
+                multiplier === 2 
+                  ? "bg-gradient-to-br from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 shadow-md" 
+                  : "bg-background"
+              }`}
             >
               DOUBLE
             </Button>
@@ -816,7 +832,11 @@ const Game = () => {
               variant={multiplier === 3 ? "default" : "outline"}
               size="lg"
               onClick={() => setMultiplier(3)}
-              className="h-12 text-xs font-bold touch-manipulation bg-orange-600 hover:bg-orange-700 text-white border-0"
+              className={`h-12 text-xs font-bold touch-manipulation ${
+                multiplier === 3 
+                  ? "bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md" 
+                  : "bg-background"
+              }`}
             >
               TRIPLE
             </Button>
