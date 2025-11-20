@@ -632,20 +632,20 @@ const Game = () => {
           {/* Header with player names */}
           <div className="flex border-b border-border">
             {/* Empty corner for number column */}
-            <div className="w-16 flex-shrink-0 bg-muted/30"></div>
+            <div className="w-20 sm:w-24 flex-shrink-0 bg-muted/30"></div>
             
             {/* Player names - scrollable */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden">
+            <div className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin">
               <div className="flex">
                 {players.map((player, idx) => (
                   <div 
                     key={player.id}
-                    className="w-24 flex-shrink-0 p-2 text-center border-r border-border bg-background"
+                    className="w-28 sm:w-32 flex-shrink-0 p-2 sm:p-3 text-center border-r border-border bg-background"
                   >
-                    <div className="font-bold text-xs truncate">{player.name}</div>
-                    <div className="text-2xl font-bold">{player.score}</div>
+                    <div className="font-bold text-sm sm:text-base truncate">{player.name}</div>
+                    <div className="text-2xl sm:text-3xl font-bold">{player.score}</div>
                     {idx === currentPlayerIndex && (
-                      <div className="h-1 bg-green-600 rounded-full mt-1"></div>
+                      <div className="h-1 bg-green-600 rounded-full mt-1 mx-auto w-3/4"></div>
                     )}
                   </div>
                 ))}
@@ -657,11 +657,11 @@ const Game = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="flex h-full">
               {/* Numbers column - fixed */}
-              <div className="w-16 flex-shrink-0 bg-muted/30">
+              <div className="w-20 sm:w-24 flex-shrink-0 bg-muted/30">
                 {cricketNumbers.map((num) => (
                   <div 
                     key={num} 
-                    className={`h-14 flex items-center justify-center font-bold text-white text-base border-b border-border ${
+                    className={`h-16 sm:h-20 flex items-center justify-center font-bold text-white text-lg sm:text-xl border-b border-border ${
                       num === 25 ? "bg-red-600" : "bg-green-600"
                     }`}
                   >
@@ -671,16 +671,16 @@ const Game = () => {
               </div>
 
               {/* Marks grid - scrollable */}
-              <div className="flex-1 overflow-x-auto overflow-y-hidden">
+              <div className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin">
                 <div className="flex">
                   {players.map((player) => (
-                    <div key={player.id} className="w-24 flex-shrink-0">
+                    <div key={player.id} className="w-28 sm:w-32 flex-shrink-0">
                       {cricketNumbers.map((num) => (
                         <div 
                           key={num}
-                          className="h-14 flex items-center justify-center border-b border-r border-border bg-background"
+                          className="h-16 sm:h-20 flex items-center justify-center border-b border-r border-border bg-background"
                         >
-                          <span className="text-3xl font-bold text-foreground">
+                          <span className="text-3xl sm:text-4xl font-bold text-foreground">
                             {getMarkSymbol(player.cricketMarks?.[num] || 0)}
                           </span>
                         </div>
@@ -694,16 +694,17 @@ const Game = () => {
 
           {/* Player Stats - scrollable */}
           <div className="border-t border-border bg-muted/10">
-            <div className="overflow-x-auto p-2">
-              <div className="flex gap-2" style={{ minWidth: `${players.length * 96}px` }}>
+            <div className="overflow-x-auto p-2 scrollbar-thin">
+              <div className="flex gap-2" style={{ minWidth: `${players.length * 112}px` }}>
                 {players.map((player) => (
-                  <div key={player.id} className="w-24 flex-shrink-0 bg-muted/20 rounded p-2 text-[10px] space-y-0.5">
+                  <div key={player.id} className="w-28 sm:w-32 flex-shrink-0 bg-muted/20 rounded p-2 text-[10px] sm:text-xs space-y-1">
                     <div className="text-muted-foreground text-center">
-                      Sets: <span className="text-foreground font-bold">0</span> Legs: <span className="text-foreground font-bold">0</span>
+                      <div>Sets: <span className="text-foreground font-bold">0</span></div>
+                      <div>Legs: <span className="text-foreground font-bold">0</span></div>
                     </div>
                     <div className="flex items-center justify-center gap-1 text-muted-foreground">
-                      <Target className="w-2.5 h-2.5" />
-                      <span className="text-foreground font-bold text-[9px]">{dartCount + (player.turnsPlayed || 0) * 3}</span>
+                      <Target className="w-3 h-3" />
+                      <span className="text-foreground font-bold">{(player.turnsPlayed || 0) * 3 + dartCount}</span>
                     </div>
                     <div className="text-center text-muted-foreground">
                       MPR: <span className="text-foreground font-bold">{calculateMPR(player)}</span>
@@ -712,7 +713,7 @@ const Game = () => {
                     <div className="flex gap-0.5 mt-1">
                       {player.turnHistory && player.turnHistory.length > 0 ? (
                         player.turnHistory.slice(-1)[0].map((dart, idx) => (
-                          <div key={idx} className="flex-1 bg-muted text-center py-1 rounded text-[8px] font-bold">
+                          <div key={idx} className="flex-1 bg-muted text-center py-1 rounded text-[9px] sm:text-[10px] font-bold">
                             {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
                           </div>
                         ))
