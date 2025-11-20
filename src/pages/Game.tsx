@@ -494,11 +494,13 @@ const Game = () => {
     }
   };
 
-  const getMarkSymbol = (marks: number) => {
+  const getMarkSymbol = (marks: number, number: number) => {
     if (marks === 0) return "";
     if (marks === 1) return "/";
-    if (marks === 2) return "⊗";
-    return "X";
+    if (marks === 2) return "X";
+    // Show ⊗ only if the number is closed (all players have 3+ marks)
+    const isClosed = players.every(p => (p.cricketMarks?.[number] || 0) >= 3);
+    return isClosed ? "⊗" : "X";
   };
 
   const calculateMPR = (player: GamePlayer) => {
@@ -619,17 +621,13 @@ const Game = () => {
     return (
       <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-3 flex items-center justify-between shadow-md">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-primary-foreground hover:bg-primary-foreground/20">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1 text-center">
+        <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-3 flex items-center justify-center shadow-md">
+          <div className="text-center">
             <h1 className="text-xl font-bold">Cricket</h1>
             <p className="text-xs opacity-90">
               Points On, Normal, First to 1 Set 1 Leg
             </p>
           </div>
-          <div className="w-10"></div>
         </div>
 
         {/* Cricket Board */}
@@ -707,7 +705,7 @@ const Game = () => {
                           key={num}
                           className="h-16 sm:h-20 flex items-center justify-center border-b border-r border-border/50 bg-card text-primary font-bold text-2xl sm:text-3xl"
                         >
-                          {getMarkSymbol(player.cricketMarks?.[num] || 0)}
+                          {getMarkSymbol(player.cricketMarks?.[num] || 0, num)}
                         </div>
                       ))}
                     </div>
@@ -806,9 +804,38 @@ const Game = () => {
         </div>
 
         {/* Number Pad */}
-        <div className="px-3 pb-3 space-y-1.5 bg-background">
-          <div className="grid grid-cols-7 gap-1.5">
-            {[15, 16, 17, 18, 19, 20, 25].map((num) => {
+        <div className="px-3 pb-3 space-y-2 bg-background">
+          {/* Multiplier Buttons */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              size="lg"
+              variant={multiplier === 2 ? "default" : "outline"}
+              onClick={() => setMultiplier(2)}
+              className={`h-14 text-xl font-bold ${
+                multiplier === 2
+                  ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground shadow-lg"
+                  : "border-2"
+              }`}
+            >
+              DOUBLE
+            </Button>
+            <Button
+              size="lg"
+              variant={multiplier === 3 ? "default" : "outline"}
+              onClick={() => setMultiplier(3)}
+              className={`h-14 text-xl font-bold ${
+                multiplier === 3
+                  ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg"
+                  : "border-2"
+              }`}
+            >
+              TRIPLE
+            </Button>
+          </div>
+
+          {/* Number Buttons */}
+          <div className="grid grid-cols-3 gap-2">
+            {cricketNumbers.slice(0, 6).map((num) => {
               const currentMarks = currentPlayer.cricketMarks?.[num] || 0;
               const canScore = currentMarks >= 3 && 
                 players.some((p, idx) => idx !== currentPlayerIndex && p.cricketMarks && (p.cricketMarks[num] || 0) < 3);
@@ -816,56 +843,50 @@ const Game = () => {
               return (
                 <Button
                   key={num}
-                  variant="outline"
                   size="lg"
                   onClick={() => handleScore(num)}
-                  disabled={dartCount >= 3 || (num === 25 && multiplier === 3)}
-                  className={`h-12 text-sm font-bold touch-manipulation transition-all ${
-                    canScore 
-                      ? "border-primary bg-primary/5 hover:bg-primary/20 text-primary" 
-                      : currentMarks >= 3 
-                        ? "border-muted-foreground/30 bg-muted/20" 
-                        : "bg-background border-border"
+                  disabled={dartCount >= 3}
+                  className={`h-16 text-2xl font-bold ${
+                    canScore
+                      ? "bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {num === 25 ? "25" : num}
+                  {num}
                 </Button>
               );
             })}
           </div>
-          <div className="grid grid-cols-4 gap-1.5">
+
+          {/* Bull Button */}
+          <Button
+            size="lg"
+            onClick={() => handleScore(25)}
+            disabled={dartCount >= 3 || multiplier === 3}
+            className={`w-full h-16 text-2xl font-bold ${
+              (() => {
+                const currentMarks = currentPlayer.cricketMarks?.[25] || 0;
+                const canScore = currentMarks >= 3 && 
+                  players.some((p, idx) => idx !== currentPlayerIndex && p.cricketMarks && (p.cricketMarks[25] || 0) < 3);
+                return canScore
+                  ? "bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg"
+                  : "bg-muted text-muted-foreground";
+              })()
+            }`}
+          >
+            BULL
+          </Button>
+
+          {/* Miss and Next Buttons */}
+          <div className="grid grid-cols-2 gap-2">
             <Button
               variant="outline"
               size="lg"
               onClick={() => handleScore(0)}
               disabled={dartCount >= 3}
-              className="h-12 text-sm font-bold touch-manipulation bg-background"
+              className="h-12 text-sm font-bold bg-background"
             >
-              0
-            </Button>
-            <Button
-              variant={multiplier === 2 ? "default" : "outline"}
-              size="lg"
-              onClick={() => setMultiplier(2)}
-              className={`h-12 text-xs font-bold touch-manipulation ${
-                multiplier === 2 
-                  ? "bg-gradient-to-br from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 shadow-md" 
-                  : "bg-background"
-              }`}
-            >
-              DOUBLE
-            </Button>
-            <Button
-              variant={multiplier === 3 ? "default" : "outline"}
-              size="lg"
-              onClick={() => setMultiplier(3)}
-              className={`h-12 text-xs font-bold touch-manipulation ${
-                multiplier === 3 
-                  ? "bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md" 
-                  : "bg-background"
-              }`}
-            >
-              TRIPLE
+              MISS
             </Button>
             <Button
               variant="destructive"
@@ -876,9 +897,9 @@ const Game = () => {
                 }
               }}
               disabled={dartCount === 0}
-              className="h-12 text-base font-bold touch-manipulation"
+              className="h-12 text-base font-bold"
             >
-              ←
+              NEXT
             </Button>
           </div>
         </div>
@@ -911,12 +932,8 @@ const Game = () => {
       <div className="flex-1 overflow-y-hidden overflow-x-visible overscroll-none p-3 sm:p-4 flex flex-col">
         <div className="max-w-2xl mx-auto w-full space-y-3 sm:space-y-4 animate-fade-in overscroll-none flex-1">
         {/* Header */}
-        <div className="flex items-center justify-between px-1">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center justify-center px-1">
           <h1 className="text-2xl sm:text-3xl font-bold">{getGameModeName(gameMode)}</h1>
-          <div className="w-11"></div>
         </div>
 
         {/* Players Scores */}
@@ -995,7 +1012,7 @@ const Game = () => {
                             }`}
                           >
                             <div className="font-semibold">{num}</div>
-                            <div className="text-[9px] font-bold">{getMarkSymbol(marks)}</div>
+                            <div className="text-[9px] font-bold">{getMarkSymbol(marks, num)}</div>
                           </div>
                         );
                       })}
