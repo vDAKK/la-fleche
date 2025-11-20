@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -50,6 +50,11 @@ const Game = () => {
   const [roundScores, setRoundScores] = useState<Map<string, number>>(new Map());
   const [winner, setWinner] = useState<GamePlayer | null>(null);
   const [showVictoryDialog, setShowVictoryDialog] = useState(false);
+  
+  // Refs for synchronized scrolling in cricket mode
+  const headerScrollRef = useRef<HTMLDivElement>(null);
+  const contentScrollRef = useRef<HTMLDivElement>(null);
+  const statsScrollRef = useRef<HTMLDivElement>(null);
 
   // Save game state to localStorage
   useEffect(() => {
@@ -635,7 +640,15 @@ const Game = () => {
             <div className="w-20 sm:w-24 flex-shrink-0 bg-gradient-to-br from-muted to-muted/50"></div>
             
             {/* Player names - scrollable */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin">
+            <div 
+              ref={headerScrollRef}
+              className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin"
+              onScroll={(e) => {
+                const scrollLeft = e.currentTarget.scrollLeft;
+                if (contentScrollRef.current) contentScrollRef.current.scrollLeft = scrollLeft;
+                if (statsScrollRef.current) statsScrollRef.current.scrollLeft = scrollLeft;
+              }}
+            >
               <div className="flex">
                 {players.map((player, idx) => (
                   <div 
@@ -677,18 +690,24 @@ const Game = () => {
               </div>
 
               {/* Marks grid - scrollable */}
-              <div className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin">
+              <div 
+                ref={contentScrollRef}
+                className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin"
+                onScroll={(e) => {
+                  const scrollLeft = e.currentTarget.scrollLeft;
+                  if (headerScrollRef.current) headerScrollRef.current.scrollLeft = scrollLeft;
+                  if (statsScrollRef.current) statsScrollRef.current.scrollLeft = scrollLeft;
+                }}
+              >
                 <div className="flex">
                   {players.map((player) => (
                     <div key={player.id} className="w-28 sm:w-32 flex-shrink-0">
                       {cricketNumbers.map((num) => (
                         <div 
                           key={num}
-                          className="h-16 sm:h-20 flex items-center justify-center border-b border-r border-border/50 bg-background hover:bg-muted/30 transition-colors"
+                          className="h-16 sm:h-20 flex items-center justify-center border-b border-r border-border/50 bg-card text-primary font-bold text-2xl sm:text-3xl"
                         >
-                          <span className="text-3xl sm:text-4xl font-bold text-primary">
-                            {getMarkSymbol(player.cricketMarks?.[num] || 0)}
-                          </span>
+                          {getMarkSymbol(player.cricketMarks?.[num] || 0)}
                         </div>
                       ))}
                     </div>
@@ -700,7 +719,15 @@ const Game = () => {
 
           {/* Player Stats - scrollable */}
           <div className="border-t-2 border-primary/20 bg-gradient-to-b from-muted/20 to-background">
-            <div className="overflow-x-auto p-2 scrollbar-thin">
+            <div 
+              ref={statsScrollRef}
+              className="overflow-x-auto p-2 scrollbar-thin"
+              onScroll={(e) => {
+                const scrollLeft = e.currentTarget.scrollLeft;
+                if (headerScrollRef.current) headerScrollRef.current.scrollLeft = scrollLeft;
+                if (contentScrollRef.current) contentScrollRef.current.scrollLeft = scrollLeft;
+              }}
+            >
               <div className="flex gap-2" style={{ minWidth: `${players.length * 112}px` }}>
                 {players.map((player) => (
                   <div key={player.id} className="w-28 sm:w-32 flex-shrink-0 bg-card border border-border/50 rounded-md p-2 text-[10px] sm:text-xs space-y-1 shadow-sm">
