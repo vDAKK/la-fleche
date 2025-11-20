@@ -492,8 +492,15 @@ const Game = () => {
   const getMarkSymbol = (marks: number) => {
     if (marks === 0) return "";
     if (marks === 1) return "/";
-    if (marks === 2) return "X";
-    return "✓";
+    if (marks === 2) return "⊗";
+    return "X";
+  };
+
+  const calculateMPR = (player: GamePlayer) => {
+    if (!player.turnsPlayed || player.turnsPlayed === 0) return "0.00";
+    const totalMarks = player.totalThrown || 0;
+    const mpr = totalMarks / player.turnsPlayed;
+    return mpr.toFixed(2);
   };
 
   // Checkout suggestions for 501 mode
@@ -602,6 +609,243 @@ const Game = () => {
   };
   const lowestTurnScore = getLowestTurnScore();
 
+  // Cricket-specific layout
+  if (gameMode === "cricket") {
+    return (
+      <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
+        {/* Header */}
+        <div className="bg-primary text-primary-foreground p-3 flex items-center justify-between">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-primary-foreground">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex-1 text-center">
+            <h1 className="text-xl font-bold">Cricket</h1>
+            <p className="text-xs opacity-90">
+              {configCricketMode === "classic" ? "Classic" : "Random"}, First to 1 Set 1 Leg
+            </p>
+          </div>
+          <div className="w-10"></div>
+        </div>
+
+        {/* Player Scores Header */}
+        <div className="grid grid-cols-2 gap-2 p-2 bg-muted/30">
+          {players.map((player, idx) => (
+            <div 
+              key={player.id}
+              className={`text-center p-2 rounded-lg transition-all ${
+                idx === currentPlayerIndex 
+                  ? "bg-primary/20 border-2 border-primary" 
+                  : "bg-card"
+              }`}
+            >
+              <div className="font-bold text-sm">{player.name}</div>
+              <div className="text-2xl font-bold">{player.score}</div>
+              {idx === currentPlayerIndex && (
+                <div className="h-1 bg-primary rounded-full mt-1"></div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Cricket Board */}
+        <div className="flex-1 overflow-auto p-3">
+          <div className="max-w-md mx-auto">
+            {cricketNumbers.map((num) => (
+              <div key={num} className="grid grid-cols-3 gap-1 mb-1">
+                {/* Player 1 Marks */}
+                <div className="flex items-center justify-center bg-card rounded-lg h-12 border">
+                  <span className="text-2xl font-bold">
+                    {getMarkSymbol(players[0]?.cricketMarks?.[num] || 0)}
+                  </span>
+                </div>
+                
+                {/* Number */}
+                <div className={`flex items-center justify-center rounded-lg h-12 font-bold text-white text-lg ${
+                  num === 25 ? "bg-red-500" : "bg-green-600"
+                }`}>
+                  {num === 25 ? "Bull" : num}
+                </div>
+                
+                {/* Player 2 Marks */}
+                <div className="flex items-center justify-center bg-card rounded-lg h-12 border">
+                  <span className="text-2xl font-bold">
+                    {getMarkSymbol(players[1]?.cricketMarks?.[num] || 0)}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* Player Stats */}
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              {players.map((player) => (
+                <div key={player.id} className="bg-card rounded-lg p-3 text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Sets:</span>
+                    <span className="font-bold">0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Legs:</span>
+                    <span className="font-bold">0</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Target className="w-3 h-3" />
+                    <span>{dartCount + (player.turnsPlayed || 0) * 3}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">MPR:</span>
+                    <span className="font-bold">{calculateMPR(player)}</span>
+                  </div>
+                  {/* Last 3 darts */}
+                  <div className="flex gap-1 mt-2">
+                    {player.turnHistory && player.turnHistory.length > 0 && 
+                      player.turnHistory.slice(-1)[0].map((dart, idx) => (
+                        <div key={idx} className="flex-1 bg-muted/50 text-center py-1 rounded text-[10px] font-bold">
+                          {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
+                        </div>
+                      ))
+                    }
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Current Turn Indicator */}
+        <Card className="mx-3 p-3 glass-card border-primary/20">
+          <div className="text-center text-sm font-bold mb-2">
+            <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
+          </div>
+          <div className="flex justify-center items-center gap-2">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-lg font-bold transition-all ${
+                  i < dartCount
+                    ? "bg-gradient-to-br from-secondary to-secondary/80 border-secondary shadow-lg"
+                    : i === dartCount
+                    ? "bg-primary/20 border-primary animate-pulse"
+                    : "bg-muted/30 border-muted"
+                }`}
+              >
+                {currentThrows[i] 
+                  ? currentThrows[i].mult === 2 
+                    ? `D${currentThrows[i].base}` 
+                    : currentThrows[i].mult === 3 
+                    ? `T${currentThrows[i].base}` 
+                    : currentThrows[i].base 
+                  : ""}
+              </div>
+            ))}
+            <Button 
+              variant="ghost" 
+              size="lg" 
+              onClick={undo} 
+              disabled={dartCount === 0 && !previousTurnState}
+              className="disabled:opacity-30 h-16 w-16"
+            >
+              <Undo2 className="w-8 h-8" />
+            </Button>
+          </div>
+        </Card>
+
+        {/* Number Pad */}
+        <div className="p-3 space-y-2">
+          <div className="grid grid-cols-7 gap-1.5">
+            {[15, 16, 17, 18, 19, 20, 25].map((num) => {
+              const currentMarks = currentPlayer.cricketMarks?.[num] || 0;
+              const canScore = currentMarks >= 3 && 
+                players.some((p, idx) => idx !== currentPlayerIndex && p.cricketMarks && (p.cricketMarks[num] || 0) < 3);
+              
+              return (
+                <Button
+                  key={num}
+                  variant="outline"
+                  size="lg"
+                  onClick={() => handleScore(num)}
+                  disabled={dartCount >= 3 || (num === 25 && multiplier === 3)}
+                  className={`h-14 text-base font-bold touch-manipulation ${
+                    currentMarks === 1 ? "border-yellow-500/50 bg-yellow-500/10" :
+                    currentMarks === 2 ? "border-orange-500/50 bg-orange-500/10" :
+                    currentMarks >= 3 ? canScore ? "border-green-500 bg-green-500/20" : "border-green-500/30 bg-green-500/5" :
+                    ""
+                  }`}
+                >
+                  {num === 25 ? "25" : num}
+                  {currentMarks > 0 && (
+                    <div className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${
+                      currentMarks >= 3 ? "bg-green-500" : currentMarks === 2 ? "bg-orange-500" : "bg-yellow-500"
+                    }`} />
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-4 gap-1.5">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => handleScore(0)}
+              disabled={dartCount >= 3}
+              className="h-14 text-base font-bold touch-manipulation"
+            >
+              0
+            </Button>
+            <Button
+              variant={multiplier === 2 ? "default" : "outline"}
+              size="lg"
+              onClick={() => setMultiplier(2)}
+              className="h-14 text-sm font-bold touch-manipulation bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              DOUBLE
+            </Button>
+            <Button
+              variant={multiplier === 3 ? "default" : "outline"}
+              size="lg"
+              onClick={() => setMultiplier(3)}
+              className="h-14 text-sm font-bold touch-manipulation bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              TRIPLE
+            </Button>
+            <Button
+              variant="destructive"
+              size="lg"
+              onClick={() => {
+                if (dartCount > 0) {
+                  processTurn(currentThrows);
+                }
+              }}
+              disabled={dartCount === 0}
+              className="h-14 text-base font-bold touch-manipulation"
+            >
+              ←
+            </Button>
+          </div>
+        </div>
+
+        {/* Victory Dialog */}
+        <Dialog open={showVictoryDialog} onOpenChange={setShowVictoryDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-center text-2xl flex items-center justify-center gap-2">
+                <Trophy className="w-8 h-8 text-yellow-500" />
+                Victoire !
+              </DialogTitle>
+            </DialogHeader>
+            <div className="text-center space-y-4 py-4">
+              <p className="text-3xl font-bold text-primary">{winner?.name}</p>
+              <p className="text-muted-foreground">remporte la partie !</p>
+              <Button onClick={() => navigate("/")} className="w-full" size="lg">
+                Retour à l'accueil
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  // Standard layout for 501 and sudden-death
   return (
     <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-y-hidden overflow-x-visible">
       <div className="flex-1 overflow-y-hidden overflow-x-visible overscroll-none p-3 sm:p-4 flex flex-col">
