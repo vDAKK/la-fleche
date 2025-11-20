@@ -792,16 +792,16 @@ const Game = () => {
         </div>
 
         {/* Number Pad */}
-        <div className="px-3 pb-3 space-y-1.5 bg-background">
+        <div className="px-3 pb-3 space-y-2 bg-background">
           {/* Multiplier Buttons */}
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-2">
             <Button
               size="lg"
               variant={multiplier === 2 ? "default" : "outline"}
               onClick={() => setMultiplier(2)}
-              className={`h-12 text-sm font-bold touch-target ${
+              className={`h-14 rounded-2xl text-base font-bold touch-target transition-all ${
                 multiplier === 2
-                  ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground shadow-lg"
+                  ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground shadow-lg scale-105"
                   : "border-2"
               }`}
             >
@@ -811,9 +811,9 @@ const Game = () => {
               size="lg"
               variant={multiplier === 3 ? "default" : "outline"}
               onClick={() => setMultiplier(3)}
-              className={`h-12 text-sm font-bold touch-target ${
+              className={`h-14 rounded-2xl text-base font-bold touch-target transition-all ${
                 multiplier === 3
-                  ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg"
+                  ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg scale-105"
                   : "border-2"
               }`}
             >
@@ -822,7 +822,7 @@ const Game = () => {
           </div>
 
           {/* Number Buttons */}
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-3 gap-2">
             {cricketNumbers.slice(0, 6).map((num) => {
               const currentMarks = currentPlayer.cricketMarks?.[num] || 0;
               const canScore = currentMarks >= 3 && 
@@ -831,13 +831,13 @@ const Game = () => {
               return (
                 <Button
                   key={num}
-                  size="lg"
+                  variant="score"
                   onClick={() => handleScore(num)}
                   disabled={dartCount >= 3}
-                  className={`h-12 text-base font-bold touch-target ${
+                  className={`h-14 rounded-2xl text-lg font-bold touch-target transition-all ${
                     canScore
-                      ? "bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg hover:scale-105"
+                      : "bg-muted/50 text-muted-foreground border-2 border-border/50"
                   }`}
                 >
                   {num}
@@ -848,17 +848,17 @@ const Game = () => {
 
           {/* Bull Button */}
           <Button
-            size="lg"
+            variant="score"
             onClick={() => handleScore(25)}
             disabled={dartCount >= 3 || multiplier === 3}
-            className={`w-full h-12 text-base font-bold touch-target ${
+            className={`w-full h-14 rounded-2xl text-lg font-bold touch-target transition-all ${
               (() => {
                 const currentMarks = currentPlayer.cricketMarks?.[25] || 0;
                 const canScore = currentMarks >= 3 && 
                   players.some((p, idx) => idx !== currentPlayerIndex && p.cricketMarks && (p.cricketMarks[25] || 0) < 3);
                 return canScore
-                  ? "bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg"
-                  : "bg-muted text-muted-foreground";
+                  ? "bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg hover:scale-105"
+                  : "bg-muted/50 text-muted-foreground border-2 border-border/50";
               })()
             }`}
           >
@@ -871,7 +871,7 @@ const Game = () => {
             size="lg"
             onClick={() => handleScore(0)}
             disabled={dartCount >= 3}
-            className="w-full h-12 text-sm font-bold bg-background touch-target"
+            className="w-full h-14 rounded-2xl text-base font-bold bg-background border-2 touch-target transition-all hover:scale-105"
           >
             MISS
           </Button>
