@@ -614,61 +614,57 @@ const Game = () => {
     return (
       <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
         {/* Header */}
-        <div className="bg-primary text-primary-foreground p-3 flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-primary-foreground">
+        <div className="bg-green-600 text-white p-3 flex items-center justify-between">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-white hover:bg-white/20">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1 text-center">
             <h1 className="text-xl font-bold">Cricket</h1>
             <p className="text-xs opacity-90">
-              {configCricketMode === "classic" ? "Classic" : "Random"}, First to 1 Set 1 Leg
+              Points On, Normal, First to 1 Set 1 Leg
             </p>
           </div>
           <div className="w-10"></div>
         </div>
 
         {/* Player Scores Header */}
-        <div className="grid grid-cols-2 gap-2 p-2 bg-muted/30">
+        <div className="grid grid-cols-2 gap-2 p-3 bg-muted/20">
           {players.map((player, idx) => (
             <div 
               key={player.id}
-              className={`text-center p-2 rounded-lg transition-all ${
-                idx === currentPlayerIndex 
-                  ? "bg-primary/20 border-2 border-primary" 
-                  : "bg-card"
-              }`}
+              className="text-center"
             >
-              <div className="font-bold text-sm">{player.name}</div>
-              <div className="text-2xl font-bold">{player.score}</div>
+              <div className="font-bold text-sm text-foreground">{player.name}</div>
+              <div className="text-3xl font-bold text-foreground">{player.score}</div>
               {idx === currentPlayerIndex && (
-                <div className="h-1 bg-primary rounded-full mt-1"></div>
+                <div className="h-1 bg-green-600 rounded-full mt-1"></div>
               )}
             </div>
           ))}
         </div>
 
         {/* Cricket Board */}
-        <div className="flex-1 overflow-auto p-3">
+        <div className="flex-1 overflow-auto px-3">
           <div className="max-w-md mx-auto">
             {cricketNumbers.map((num) => (
-              <div key={num} className="grid grid-cols-3 gap-1 mb-1">
+              <div key={num} className="grid grid-cols-3 gap-2 mb-2">
                 {/* Player 1 Marks */}
-                <div className="flex items-center justify-center bg-card rounded-lg h-12 border">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center justify-center bg-muted/30 rounded h-14">
+                  <span className="text-3xl font-bold text-foreground">
                     {getMarkSymbol(players[0]?.cricketMarks?.[num] || 0)}
                   </span>
                 </div>
                 
                 {/* Number */}
-                <div className={`flex items-center justify-center rounded-lg h-12 font-bold text-white text-lg ${
-                  num === 25 ? "bg-red-500" : "bg-green-600"
+                <div className={`flex items-center justify-center rounded h-14 font-bold text-white text-xl ${
+                  num === 25 ? "bg-red-600" : "bg-green-600"
                 }`}>
                   {num === 25 ? "Bull" : num}
                 </div>
                 
                 {/* Player 2 Marks */}
-                <div className="flex items-center justify-center bg-card rounded-lg h-12 border">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center justify-center bg-muted/30 rounded h-14">
+                  <span className="text-3xl font-bold text-foreground">
                     {getMarkSymbol(players[1]?.cricketMarks?.[num] || 0)}
                   </span>
                 </div>
@@ -676,34 +672,35 @@ const Game = () => {
             ))}
 
             {/* Player Stats */}
-            <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="grid grid-cols-2 gap-3 mt-4 mb-3">
               {players.map((player) => (
-                <div key={player.id} className="bg-card rounded-lg p-3 text-xs space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Sets:</span>
-                    <span className="font-bold">0</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Legs:</span>
-                    <span className="font-bold">0</span>
+                <div key={player.id} className="bg-muted/20 rounded-lg p-2.5 text-xs space-y-1">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Sets: <span className="text-foreground font-bold">0</span></span>
+                    <span>Legs: <span className="text-foreground font-bold">0</span></span>
                   </div>
                   <div className="flex items-center gap-1 text-muted-foreground">
                     <Target className="w-3 h-3" />
-                    <span>{dartCount + (player.turnsPlayed || 0) * 3}</span>
+                    <span className="text-foreground font-bold">{dartCount + (player.turnsPlayed || 0) * 3}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">MPR:</span>
-                    <span className="font-bold">{calculateMPR(player)}</span>
+                  <div className="text-muted-foreground">
+                    MPR: <span className="text-foreground font-bold">{calculateMPR(player)}</span>
                   </div>
                   {/* Last 3 darts */}
                   <div className="flex gap-1 mt-2">
-                    {player.turnHistory && player.turnHistory.length > 0 && 
+                    {player.turnHistory && player.turnHistory.length > 0 ? (
                       player.turnHistory.slice(-1)[0].map((dart, idx) => (
-                        <div key={idx} className="flex-1 bg-muted/50 text-center py-1 rounded text-[10px] font-bold">
-                          {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
+                        <div key={idx} className="flex-1 bg-muted text-center py-1.5 rounded text-[10px] font-bold">
+                          {dart.mult === 2 ? `T${dart.base}` : dart.mult === 3 ? `16` : dart.base}
                         </div>
                       ))
-                    }
+                    ) : (
+                      <>
+                        <div className="flex-1 bg-muted/50 py-1.5 rounded"></div>
+                        <div className="flex-1 bg-muted/50 py-1.5 rounded"></div>
+                        <div className="flex-1 bg-muted/50 py-1.5 rounded"></div>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -712,45 +709,47 @@ const Game = () => {
         </div>
 
         {/* Current Turn Indicator */}
-        <Card className="mx-3 p-3 glass-card border-primary/20">
-          <div className="text-center text-sm font-bold mb-2">
-            <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
-          </div>
-          <div className="flex justify-center items-center gap-2">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-lg font-bold transition-all ${
-                  i < dartCount
-                    ? "bg-gradient-to-br from-secondary to-secondary/80 border-secondary shadow-lg"
-                    : i === dartCount
-                    ? "bg-primary/20 border-primary animate-pulse"
-                    : "bg-muted/30 border-muted"
-                }`}
+        <div className="px-3 pb-2">
+          <Card className="p-3 glass-card border-primary/20">
+            <div className="text-center text-sm font-bold mb-2">
+              <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
+            </div>
+            <div className="flex justify-center items-center gap-2">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`w-14 h-14 rounded-lg border-2 flex items-center justify-center text-base font-bold transition-all ${
+                    i < dartCount
+                      ? "bg-gradient-to-br from-secondary to-secondary/80 border-secondary shadow-lg"
+                      : i === dartCount
+                      ? "bg-primary/20 border-primary animate-pulse"
+                      : "bg-muted/30 border-muted"
+                  }`}
+                >
+                  {currentThrows[i] 
+                    ? currentThrows[i].mult === 2 
+                      ? `D${currentThrows[i].base}` 
+                      : currentThrows[i].mult === 3 
+                      ? `T${currentThrows[i].base}` 
+                      : currentThrows[i].base 
+                    : ""}
+                </div>
+              ))}
+              <Button 
+                variant="ghost" 
+                size="lg" 
+                onClick={undo} 
+                disabled={dartCount === 0 && !previousTurnState}
+                className="disabled:opacity-30 h-14 w-14"
               >
-                {currentThrows[i] 
-                  ? currentThrows[i].mult === 2 
-                    ? `D${currentThrows[i].base}` 
-                    : currentThrows[i].mult === 3 
-                    ? `T${currentThrows[i].base}` 
-                    : currentThrows[i].base 
-                  : ""}
-              </div>
-            ))}
-            <Button 
-              variant="ghost" 
-              size="lg" 
-              onClick={undo} 
-              disabled={dartCount === 0 && !previousTurnState}
-              className="disabled:opacity-30 h-16 w-16"
-            >
-              <Undo2 className="w-8 h-8" />
-            </Button>
-          </div>
-        </Card>
+                <Undo2 className="w-7 h-7" />
+              </Button>
+            </div>
+          </Card>
+        </div>
 
         {/* Number Pad */}
-        <div className="p-3 space-y-2">
+        <div className="px-3 pb-3 space-y-1.5 bg-background">
           <div className="grid grid-cols-7 gap-1.5">
             {[15, 16, 17, 18, 19, 20, 25].map((num) => {
               const currentMarks = currentPlayer.cricketMarks?.[num] || 0;
@@ -764,19 +763,9 @@ const Game = () => {
                   size="lg"
                   onClick={() => handleScore(num)}
                   disabled={dartCount >= 3 || (num === 25 && multiplier === 3)}
-                  className={`h-14 text-base font-bold touch-manipulation ${
-                    currentMarks === 1 ? "border-yellow-500/50 bg-yellow-500/10" :
-                    currentMarks === 2 ? "border-orange-500/50 bg-orange-500/10" :
-                    currentMarks >= 3 ? canScore ? "border-green-500 bg-green-500/20" : "border-green-500/30 bg-green-500/5" :
-                    ""
-                  }`}
+                  className="h-12 text-sm font-bold touch-manipulation bg-background border-border"
                 >
                   {num === 25 ? "25" : num}
-                  {currentMarks > 0 && (
-                    <div className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${
-                      currentMarks >= 3 ? "bg-green-500" : currentMarks === 2 ? "bg-orange-500" : "bg-yellow-500"
-                    }`} />
-                  )}
                 </Button>
               );
             })}
@@ -787,7 +776,7 @@ const Game = () => {
               size="lg"
               onClick={() => handleScore(0)}
               disabled={dartCount >= 3}
-              className="h-14 text-base font-bold touch-manipulation"
+              className="h-12 text-sm font-bold touch-manipulation bg-background"
             >
               0
             </Button>
@@ -795,7 +784,7 @@ const Game = () => {
               variant={multiplier === 2 ? "default" : "outline"}
               size="lg"
               onClick={() => setMultiplier(2)}
-              className="h-14 text-sm font-bold touch-manipulation bg-orange-500 hover:bg-orange-600 text-white"
+              className="h-12 text-xs font-bold touch-manipulation bg-orange-500 hover:bg-orange-600 text-white border-0"
             >
               DOUBLE
             </Button>
@@ -803,7 +792,7 @@ const Game = () => {
               variant={multiplier === 3 ? "default" : "outline"}
               size="lg"
               onClick={() => setMultiplier(3)}
-              className="h-14 text-sm font-bold touch-manipulation bg-orange-600 hover:bg-orange-700 text-white"
+              className="h-12 text-xs font-bold touch-manipulation bg-orange-600 hover:bg-orange-700 text-white border-0"
             >
               TRIPLE
             </Button>
@@ -816,7 +805,7 @@ const Game = () => {
                 }
               }}
               disabled={dartCount === 0}
-              className="h-14 text-base font-bold touch-manipulation"
+              className="h-12 text-base font-bold touch-manipulation"
             >
               ←
             </Button>
