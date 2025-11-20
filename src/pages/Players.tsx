@@ -70,7 +70,7 @@ const Players = () => {
   };
 
   return (
-    <div className="min-h-screen safe-top safe-bottom p-4 sm:p-6">
+    <div className="min-h-screen-safe safe-top safe-bottom p-4 sm:p-6 overflow-x-hidden">
       <div className="max-w-lg mx-auto space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center gap-3 sm:gap-4">

@@ -628,7 +628,7 @@ const Game = () => {
   // Cricket-specific layout
   if (gameMode === "cricket") {
     return (
-      <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
+      <div className="h-screen-safe flex flex-col safe-top safe-bottom bg-background overflow-hidden">
         {/* Header */}
         <div className="p-3 flex items-center justify-between">
           <Button
@@ -798,7 +798,7 @@ const Game = () => {
               size="lg"
               variant={multiplier === 2 ? "default" : "outline"}
               onClick={() => setMultiplier(2)}
-              className={`h-10 text-sm font-bold ${
+              className={`h-12 text-sm font-bold touch-target ${
                 multiplier === 2
                   ? "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground shadow-lg"
                   : "border-2"
@@ -810,7 +810,7 @@ const Game = () => {
               size="lg"
               variant={multiplier === 3 ? "default" : "outline"}
               onClick={() => setMultiplier(3)}
-              className={`h-10 text-sm font-bold ${
+              className={`h-12 text-sm font-bold touch-target ${
                 multiplier === 3
                   ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg"
                   : "border-2"
@@ -833,7 +833,7 @@ const Game = () => {
                   size="lg"
                   onClick={() => handleScore(num)}
                   disabled={dartCount >= 3}
-                  className={`h-11 text-base font-bold ${
+                  className={`h-12 text-base font-bold touch-target ${
                     canScore
                       ? "bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg"
                       : "bg-muted text-muted-foreground"
@@ -850,7 +850,7 @@ const Game = () => {
             size="lg"
             onClick={() => handleScore(25)}
             disabled={dartCount >= 3 || multiplier === 3}
-            className={`w-full h-11 text-base font-bold ${
+            className={`w-full h-12 text-base font-bold touch-target ${
               (() => {
                 const currentMarks = currentPlayer.cricketMarks?.[25] || 0;
                 const canScore = currentMarks >= 3 && 
@@ -870,7 +870,7 @@ const Game = () => {
             size="lg"
             onClick={() => handleScore(0)}
             disabled={dartCount >= 3}
-            className="w-full h-10 text-sm font-bold bg-background"
+            className="w-full h-12 text-sm font-bold bg-background touch-target"
           >
             MISS
           </Button>
@@ -900,7 +900,7 @@ const Game = () => {
 
   // Standard layout for 501 and sudden-death
   return (
-    <div className="h-screen flex flex-col safe-top safe-bottom bg-background overflow-y-hidden overflow-x-visible">
+    <div className="h-screen-safe flex flex-col safe-top safe-bottom bg-background overflow-hidden">
       <div className="flex-1 overflow-y-hidden overflow-x-visible overscroll-none p-3 sm:p-4 flex flex-col">
         <div className="max-w-2xl mx-auto w-full space-y-3 sm:space-y-4 animate-fade-in overscroll-none flex-1">
         {/* Header */}
