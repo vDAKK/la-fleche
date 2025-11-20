@@ -54,7 +54,6 @@ const Game = () => {
   // Refs for synchronized scrolling in cricket mode
   const headerScrollRef = useRef<HTMLDivElement>(null);
   const contentScrollRef = useRef<HTMLDivElement>(null);
-  const statsScrollRef = useRef<HTMLDivElement>(null);
 
   // Save game state to localStorage
   useEffect(() => {
@@ -644,7 +643,6 @@ const Game = () => {
               onScroll={(e) => {
                 const scrollLeft = e.currentTarget.scrollLeft;
                 if (contentScrollRef.current) contentScrollRef.current.scrollLeft = scrollLeft;
-                if (statsScrollRef.current) statsScrollRef.current.scrollLeft = scrollLeft;
               }}
             >
               <div className="flex">
@@ -694,7 +692,6 @@ const Game = () => {
                 onScroll={(e) => {
                   const scrollLeft = e.currentTarget.scrollLeft;
                   if (headerScrollRef.current) headerScrollRef.current.scrollLeft = scrollLeft;
-                  if (statsScrollRef.current) statsScrollRef.current.scrollLeft = scrollLeft;
                 }}
               >
                 <div className="flex">
@@ -714,47 +711,50 @@ const Game = () => {
               </div>
             </div>
           </div>
-
-          {/* Player Stats - scrollable */}
-          <div className="border-t-2 border-primary/20 bg-gradient-to-b from-muted/20 to-background">
-            <div 
-              ref={statsScrollRef}
-              className="overflow-x-auto p-2 scrollbar-thin"
-              onScroll={(e) => {
-                const scrollLeft = e.currentTarget.scrollLeft;
-                if (headerScrollRef.current) headerScrollRef.current.scrollLeft = scrollLeft;
-                if (contentScrollRef.current) contentScrollRef.current.scrollLeft = scrollLeft;
-              }}
-            >
-              <div className="flex gap-2" style={{ minWidth: `${players.length * 112}px` }}>
-                {players.map((player) => (
-                  <div key={player.id} className="w-28 sm:w-32 flex-shrink-0 bg-card border border-border/50 rounded-md p-2 text-[10px] sm:text-xs space-y-1 shadow-sm">
-                    <div className="text-center text-muted-foreground">
-                      MPR: <span className="text-primary font-bold">{calculateMPR(player)}</span>
-                    </div>
-                    {/* Last 3 darts */}
-                    <div className="flex gap-0.5 mt-1">
-                      {player.turnHistory && player.turnHistory.length > 0 ? (
-                        player.turnHistory.slice(-1)[0].map((dart, idx) => (
-                          <div key={idx} className="flex-1 bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-center py-1 rounded text-[9px] sm:text-[10px] font-bold border border-primary/20">
-                            {dart.mult === 2 ? `D${dart.base}` : dart.mult === 3 ? `T${dart.base}` : dart.base}
-                          </div>
-                        ))
-                      ) : (
-                        <>
-                          <div className="flex-1 bg-muted/30 py-1 rounded border border-border/50"></div>
-                          <div className="flex-1 bg-muted/30 py-1 rounded border border-border/50"></div>
-                          <div className="flex-1 bg-muted/30 py-1 rounded border border-border/50"></div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
 
+
+        {/* Current Turn Indicator - Compact */}
+        <div className="px-3 py-1.5 bg-card border-t border-border/50">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-xs font-bold">
+              <span className="text-primary">{currentPlayer.name}</span>
+            </div>
+            <div className="flex gap-1">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`w-10 h-10 rounded border flex items-center justify-center text-xs font-bold ${
+                    i < dartCount
+                      ? "bg-primary/20 border-primary text-primary"
+                      : "bg-muted/30 border-muted text-muted-foreground"
+                  }`}
+                >
+                  {currentThrows[i] 
+                    ? currentThrows[i].mult === 2 
+                      ? `D${currentThrows[i].base}` 
+                      : currentThrows[i].mult === 3 
+                      ? `T${currentThrows[i].base}` 
+                      : currentThrows[i].base 
+                    : ""}
+                </div>
+              ))}
+            </div>
+            <div className="text-xs">
+              <span className="text-muted-foreground">MPR:</span>{" "}
+              <span className="text-primary font-bold">{calculateMPR(currentPlayer)}</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={undo} 
+              disabled={dartCount === 0 && !previousTurnState}
+              className="disabled:opacity-30 h-10 w-10 p-0"
+            >
+              <Undo2 className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
 
         {/* Number Pad */}
         <div className="px-3 pb-3 space-y-1.5 bg-background">
