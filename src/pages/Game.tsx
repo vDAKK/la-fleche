@@ -373,22 +373,23 @@ const Game = () => {
         // Clear round scores for next round
         setRoundScores(new Map());
         
-        // Randomize player order for next round in sudden death
-        const alive = updatedPlayers.filter((p) => (p.lives || 0) > 0);
-        const dead = updatedPlayers.filter((p) => (p.lives || 0) <= 0);
-        const shuffledAlive = alive.sort(() => Math.random() - 0.5);
-        const reorderedPlayers = [...shuffledAlive, ...dead];
+        // DON'T randomize player order - keep the current order
+        // This prevents bugs when using undo after changing players
         
-        // Update players with new order
-        setPlayers(reorderedPlayers);
+        // Update players
+        setPlayers(updatedPlayers);
         
-        // Reset to first player
-        setCurrentPlayerIndex(0);
+        // Reset to first alive player
+        let firstAliveIndex = 0;
+        while ((updatedPlayers[firstAliveIndex].lives || 0) <= 0 && firstAliveIndex < updatedPlayers.length - 1) {
+          firstAliveIndex++;
+        }
+        setCurrentPlayerIndex(firstAliveIndex);
         setDartCount(0);
         setCurrentThrows([]);
         setMultiplier(1);
         
-        toast.info("Nouveau round - ordre des joueurs mélangé!");
+        toast.info("Nouveau round!");
         return;
       } else {
         setRoundScores(newRoundScores);
@@ -934,7 +935,7 @@ const Game = () => {
                   idx === currentPlayerIndex
                     ? "border-2 border-primary bg-primary/20 shadow-lg glow-primary scale-[1.02]"
                     : isInDanger
-                    ? "border-2 border-destructive bg-destructive/10 shadow-lg shadow-destructive/30 animate-pulse"
+                    ? "border-2 border-destructive bg-destructive/10 shadow-lg shadow-destructive/50"
                     : "border border-border/50 opacity-70"
                 }`}
               >
