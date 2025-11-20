@@ -201,9 +201,8 @@ const Game = () => {
       if (cricketNumbers.includes(baseScore) && player.cricketMarks) {
         const currentMarks = player.cricketMarks[baseScore] || 0;
         const marksToAdd = multiplier;
-        const newMarks = Math.min(currentMarks + marksToAdd, 3);
-        const extraMarks = Math.max(0, currentMarks + marksToAdd - 3);
-        const marksCounted = newMarks - currentMarks; // real marks that count for MPR
+        const newMarks = currentMarks + marksToAdd;
+        const extraMarks = Math.max(0, newMarks - 3);
 
         // Attach metadata BEFORE mutating marks
         dart = {
@@ -212,26 +211,29 @@ const Game = () => {
           preMarks: currentMarks,
           wasClosedBefore: currentMarks >= 3,
           extraMarksUsed: extraMarks,
-          marksCounted,
+          marksCounted: Math.min(marksToAdd, 3 - currentMarks), // real marks that count for MPR
         };
 
-        // Update marks (capped at 3)
+        // Update marks (no cap, can go beyond 3)
         player.cricketMarks[baseScore] = newMarks;
 
-        // Score points for OTHER players who haven't closed this number
-        if (extraMarks > 0) {
-          updatedPlayers.forEach((otherPlayer, idx) => {
-            if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
-              const otherMarks = otherPlayer.cricketMarks[baseScore] || 0;
-              if (otherMarks < 3) {
-                otherPlayer.score += baseScore * extraMarks;
-              }
-            }
-          });
+        // Score points for CURRENT player if they have extra marks and other players haven't closed
+        if (newMarks > 3) {
+          const pointsToAdd = baseScore * extraMarks;
+          // Check if any other player hasn't closed this number
+          const hasOpenOpponent = updatedPlayers.some((otherPlayer, idx) => 
+            idx !== currentPlayerIndex && 
+            otherPlayer.cricketMarks && 
+            (otherPlayer.cricketMarks[baseScore] || 0) < 3
+          );
+          
+          if (hasOpenOpponent) {
+            player.score += pointsToAdd;
+          }
         }
         
         // Increment totalThrown only by real marks that count for MPR
-        player.totalThrown = (player.totalThrown || 0) + marksCounted;
+        player.totalThrown = (player.totalThrown || 0) + (dart.marksCounted || 0);
       }
 
       setPlayers(updatedPlayers);
@@ -431,40 +433,49 @@ const Game = () => {
         if (cricketNumbers.includes(lastThrow.base) && player.cricketMarks) {
           const currentMarks = player.cricketMarks[lastThrow.base] || 0;
 
-          // If number was already closed BEFORE this throw, only remove points
+          // If number was already closed BEFORE this throw, only remove points from current player
           const wasClosedBefore = lastThrow.wasClosedBefore || (typeof lastThrow.preMarks === "number" && lastThrow.preMarks >= 3);
           if (wasClosedBefore) {
             const pointsToRemove = lastThrow.base * lastThrow.mult;
-            updatedPlayers.forEach((otherPlayer, idx) => {
-              if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
-                const otherMarks = otherPlayer.cricketMarks[lastThrow.base] || 0;
-                if (otherMarks < 3) {
-                  otherPlayer.score -= pointsToRemove;
-                }
-              }
-            });
-            // Do NOT change marks (they were already closed before the throw)
+            // Check if there were open opponents when the throw was made
+            const hasOpenOpponent = updatedPlayers.some((otherPlayer, idx) => 
+              idx !== currentPlayerIndex && 
+              otherPlayer.cricketMarks && 
+              (otherPlayer.cricketMarks[lastThrow.base] || 0) < 3
+            );
+            
+            if (hasOpenOpponent) {
+              player.score -= pointsToRemove;
+            }
+            
+            // Restore marks to pre-throw value
+            const preMarks = typeof lastThrow.preMarks === "number"
+              ? lastThrow.preMarks
+              : Math.max(0, currentMarks - lastThrow.mult);
+            player.cricketMarks[lastThrow.base] = preMarks;
           } else {
             // Restore marks to the exact pre-throw value when available
             const preMarks = typeof lastThrow.preMarks === "number"
               ? lastThrow.preMarks
               : Math.max(0, currentMarks - lastThrow.mult);
 
-            // If extra marks scored points, undo those points using recorded value
+            // If extra marks scored points, undo those points from current player
             const extraMarks = typeof lastThrow.extraMarksUsed === "number"
               ? lastThrow.extraMarksUsed
               : Math.max(0, (preMarks + lastThrow.mult) - 3);
 
             if (extraMarks > 0) {
               const pointsToRemove = lastThrow.base * extraMarks;
-              updatedPlayers.forEach((otherPlayer, idx) => {
-                if (idx !== currentPlayerIndex && otherPlayer.cricketMarks) {
-                  const otherMarks = otherPlayer.cricketMarks[lastThrow.base] || 0;
-                  if (otherMarks < 3) {
-                    otherPlayer.score -= pointsToRemove;
-                  }
-                }
-              });
+              // Check if there were open opponents when the throw was made
+              const hasOpenOpponent = updatedPlayers.some((otherPlayer, idx) => 
+                idx !== currentPlayerIndex && 
+                otherPlayer.cricketMarks && 
+                (otherPlayer.cricketMarks[lastThrow.base] || 0) < 3
+              );
+              
+              if (hasOpenOpponent) {
+                player.score -= pointsToRemove;
+              }
             }
 
             player.cricketMarks[lastThrow.base] = preMarks;
@@ -498,9 +509,8 @@ const Game = () => {
     if (marks === 0) return "";
     if (marks === 1) return "/";
     if (marks === 2) return "X";
-    // Show ⊗ only if the number is closed (all players have 3+ marks)
-    const isClosed = players.every(p => (p.cricketMarks?.[number] || 0) >= 3);
-    return isClosed ? "⊗" : "X";
+    if (marks >= 3) return "⊗";
+    return "";
   };
 
   const calculateMPR = (player: GamePlayer) => {
@@ -620,16 +630,6 @@ const Game = () => {
   if (gameMode === "cricket") {
     return (
       <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-3 flex items-center justify-center shadow-md">
-          <div className="text-center">
-            <h1 className="text-xl font-bold">Cricket</h1>
-            <p className="text-xs opacity-90">
-              Points On, Normal, First to 1 Set 1 Leg
-            </p>
-          </div>
-        </div>
-
         {/* Cricket Board */}
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Header with player names */}
@@ -729,14 +729,6 @@ const Game = () => {
               <div className="flex gap-2" style={{ minWidth: `${players.length * 112}px` }}>
                 {players.map((player) => (
                   <div key={player.id} className="w-28 sm:w-32 flex-shrink-0 bg-card border border-border/50 rounded-md p-2 text-[10px] sm:text-xs space-y-1 shadow-sm">
-                    <div className="text-muted-foreground text-center">
-                      <div>Sets: <span className="text-primary font-bold">0</span></div>
-                      <div>Legs: <span className="text-primary font-bold">0</span></div>
-                    </div>
-                    <div className="flex items-center justify-center gap-1 text-muted-foreground">
-                      <Target className="w-3 h-3 text-primary" />
-                      <span className="text-primary font-bold">{(player.turnsPlayed || 0) * 3 + dartCount}</span>
-                    </div>
                     <div className="text-center text-muted-foreground">
                       MPR: <span className="text-primary font-bold">{calculateMPR(player)}</span>
                     </div>
