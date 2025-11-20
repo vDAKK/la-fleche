@@ -715,44 +715,51 @@ const Game = () => {
 
 
         {/* Current Turn Indicator - Compact */}
-        <div className="px-3 py-1.5 bg-card border-t border-border/50">
-          <div className="flex items-center justify-between gap-2">
-            <div className="text-xs font-bold">
-              <span className="text-primary">{currentPlayer.name}</span>
+        <div className="px-3 py-2 bg-card border-t border-border/50">
+          <div className="space-y-2">
+            {/* Player name and MPR */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-sm font-bold truncate flex-1 min-w-0">
+                <span className="text-primary truncate">{currentPlayer.name}</span>
+              </div>
+              <div className="text-xs whitespace-nowrap flex-shrink-0">
+                <span className="text-muted-foreground">MPR:</span>{" "}
+                <span className="text-primary font-bold">{calculateMPR(currentPlayer)}</span>
+              </div>
             </div>
-            <div className="flex gap-1">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={`w-10 h-10 rounded border flex items-center justify-center text-xs font-bold ${
-                    i < dartCount
-                      ? "bg-primary/20 border-primary text-primary"
-                      : "bg-muted/30 border-muted text-muted-foreground"
-                  }`}
-                >
-                  {currentThrows[i] 
-                    ? currentThrows[i].mult === 2 
-                      ? `D${currentThrows[i].base}` 
-                      : currentThrows[i].mult === 3 
-                      ? `T${currentThrows[i].base}` 
-                      : currentThrows[i].base 
-                    : ""}
-                </div>
-              ))}
+            
+            {/* Throws and undo button */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex gap-1.5 flex-1 justify-center">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className={`w-12 h-12 rounded border-2 flex items-center justify-center text-sm font-bold transition-all ${
+                      i < dartCount
+                        ? "bg-primary/20 border-primary text-primary"
+                        : "bg-muted/30 border-muted text-muted-foreground"
+                    }`}
+                  >
+                    {currentThrows[i] 
+                      ? currentThrows[i].mult === 2 
+                        ? `D${currentThrows[i].base}` 
+                        : currentThrows[i].mult === 3 
+                        ? `T${currentThrows[i].base}` 
+                        : currentThrows[i].base 
+                      : ""}
+                  </div>
+                ))}
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={undo} 
+                disabled={dartCount === 0 && !previousTurnState}
+                className="disabled:opacity-30 h-12 w-12 p-0 flex-shrink-0"
+              >
+                <Undo2 className="w-6 h-6" />
+              </Button>
             </div>
-            <div className="text-xs">
-              <span className="text-muted-foreground">MPR:</span>{" "}
-              <span className="text-primary font-bold">{calculateMPR(currentPlayer)}</span>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={undo} 
-              disabled={dartCount === 0 && !previousTurnState}
-              className="disabled:opacity-30 h-10 w-10 p-0"
-            >
-              <Undo2 className="w-5 h-5" />
-            </Button>
           </div>
         </div>
 
