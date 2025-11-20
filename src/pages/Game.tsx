@@ -629,6 +629,20 @@ const Game = () => {
   if (gameMode === "cricket") {
     return (
       <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-3 flex items-center justify-between shadow-md">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/")}
+            className="text-primary-foreground hover:bg-primary-foreground/20"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </Button>
+          <h1 className="text-xl font-bold">Cricket</h1>
+          <div className="w-10"></div>
+        </div>
+
         {/* Cricket Board */}
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Header with player names */}
