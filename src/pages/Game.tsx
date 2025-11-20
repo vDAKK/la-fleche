@@ -714,7 +714,11 @@ const Game = () => {
                       {cricketNumbers.map((num) => (
                         <div 
                           key={num}
-                          className="h-16 sm:h-20 flex items-center justify-center border-b border-r border-border/50 bg-card text-primary font-bold text-3xl sm:text-4xl"
+                          className={`h-16 sm:h-20 flex items-center justify-center border-b border-r border-border/50 font-bold text-3xl sm:text-4xl ${
+                            num === 25
+                              ? "bg-card/80 text-primary"
+                              : "bg-card text-primary"
+                          }`}
                         >
                           {getMarkSymbol(player.cricketMarks?.[num] || 0, num)}
                         </div>
