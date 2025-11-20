@@ -630,16 +630,16 @@ const Game = () => {
     return (
       <div className="h-screen flex flex-col safe-top safe-bottom bg-background">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-3 flex items-center justify-between shadow-md">
+        <div className="p-3 flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/")}
-            className="text-primary-foreground hover:bg-primary-foreground/20"
+            className="text-foreground hover:bg-muted"
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-xl font-bold">Cricket</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Cricket</h1>
           <div className="w-10"></div>
         </div>
 
@@ -904,8 +904,17 @@ const Game = () => {
       <div className="flex-1 overflow-y-hidden overflow-x-visible overscroll-none p-3 sm:p-4 flex flex-col">
         <div className="max-w-2xl mx-auto w-full space-y-3 sm:space-y-4 animate-fade-in overscroll-none flex-1">
         {/* Header */}
-        <div className="flex items-center justify-center px-1">
+        <div className="flex items-center justify-between px-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/")}
+            className="text-foreground hover:bg-muted"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </Button>
           <h1 className="text-2xl sm:text-3xl font-bold">{getGameModeName(gameMode)}</h1>
+          <div className="w-10"></div>
         </div>
 
         {/* Players Scores */}
