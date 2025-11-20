@@ -88,7 +88,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen safe-top safe-bottom flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+    <div className="min-h-screen-safe safe-top safe-bottom flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
       {/* Animated background orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 -left-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-primary/8 blur-3xl animate-pulse-glow" />
