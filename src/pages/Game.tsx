@@ -682,9 +682,9 @@ const Game = () => {
 
           {/* Cricket grid */}
           <div className="flex-1 overflow-y-auto">
-            <div className="flex h-full">
+            <div className="flex min-h-full">
               {/* Numbers column - fixed */}
-              <div className="w-20 sm:w-24 flex-shrink-0 bg-gradient-to-br from-muted to-muted/50">
+              <div className="w-20 sm:w-24 flex-shrink-0">
                 {cricketNumbers.map((num) => (
                   <div 
                     key={num} 
@@ -702,13 +702,13 @@ const Game = () => {
               {/* Marks grid - scrollable */}
               <div 
                 ref={contentScrollRef}
-                className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin"
+                className="flex-1 overflow-x-auto scrollbar-thin"
                 onScroll={(e) => {
                   const scrollLeft = e.currentTarget.scrollLeft;
                   if (headerScrollRef.current) headerScrollRef.current.scrollLeft = scrollLeft;
                 }}
               >
-                <div className="flex">
+                <div className="flex min-h-full">
                   {players.map((player) => (
                     <div key={player.id} className="w-28 sm:w-32 flex-shrink-0">
                       {cricketNumbers.map((num) => (
