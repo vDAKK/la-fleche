@@ -729,7 +729,18 @@ const Game = () => {
             </div>
             
             {/* Throws and undo button */}
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-between gap-2 w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={undo} 
+                disabled={!previousTurnState || dartCount > 0}
+                className="disabled:opacity-30 h-12 w-12 p-0 flex-shrink-0"
+                title="Revenir au joueur précédent"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </Button>
+              
               <div className="flex gap-1.5 flex-1 justify-center">
                 {[0, 1, 2].map((i) => (
                   <div
@@ -750,12 +761,14 @@ const Game = () => {
                   </div>
                 ))}
               </div>
+              
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={undo} 
-                disabled={dartCount === 0 && !previousTurnState}
+                disabled={dartCount === 0}
                 className="disabled:opacity-30 h-12 w-12 p-0 flex-shrink-0"
+                title="Annuler le dernier lancer"
               >
                 <Undo2 className="w-6 h-6" />
               </Button>
