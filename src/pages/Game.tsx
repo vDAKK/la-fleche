@@ -420,23 +420,53 @@ const Game = () => {
     setMultiplier(1);
   };
 
-  const undo = () => {
-    if (dartCount > 0) {
-      // Undo current throw
-      const lastThrow = currentThrows[currentThrows.length - 1] as DartThrow;
+  const undoLastThrow = () => {
+    if (dartCount === 0) return;
+    
+    // Undo current throw
+    const lastThrow = currentThrows[currentThrows.length - 1] as DartThrow;
+    
+    // For cricket, undo the score changes
+    if (gameMode === "cricket" && lastThrow) {
+      const updatedPlayers = [...players];
+      const player = updatedPlayers[currentPlayerIndex];
       
-      // For cricket, undo the score changes
-      if (gameMode === "cricket" && lastThrow) {
-        const updatedPlayers = [...players];
-        const player = updatedPlayers[currentPlayerIndex];
-        
-        if (cricketNumbers.includes(lastThrow.base) && player.cricketMarks) {
-          const currentMarks = player.cricketMarks[lastThrow.base] || 0;
+      if (cricketNumbers.includes(lastThrow.base) && player.cricketMarks) {
+        const currentMarks = player.cricketMarks[lastThrow.base] || 0;
 
-          // If number was already closed BEFORE this throw, only remove points from current player
-          const wasClosedBefore = lastThrow.wasClosedBefore || (typeof lastThrow.preMarks === "number" && lastThrow.preMarks >= 3);
-          if (wasClosedBefore) {
-            const pointsToRemove = lastThrow.base * lastThrow.mult;
+        // If number was already closed BEFORE this throw, only remove points from current player
+        const wasClosedBefore = lastThrow.wasClosedBefore || (typeof lastThrow.preMarks === "number" && lastThrow.preMarks >= 3);
+        if (wasClosedBefore) {
+          const pointsToRemove = lastThrow.base * lastThrow.mult;
+          // Check if there were open opponents when the throw was made
+          const hasOpenOpponent = updatedPlayers.some((otherPlayer, idx) => 
+            idx !== currentPlayerIndex && 
+            otherPlayer.cricketMarks && 
+            (otherPlayer.cricketMarks[lastThrow.base] || 0) < 3
+          );
+          
+          if (hasOpenOpponent) {
+            player.score -= pointsToRemove;
+          }
+          
+          // Restore marks to pre-throw value
+          const preMarks = typeof lastThrow.preMarks === "number"
+            ? lastThrow.preMarks
+            : Math.max(0, currentMarks - lastThrow.mult);
+          player.cricketMarks[lastThrow.base] = preMarks;
+        } else {
+          // Restore marks to the exact pre-throw value when available
+          const preMarks = typeof lastThrow.preMarks === "number"
+            ? lastThrow.preMarks
+            : Math.max(0, currentMarks - lastThrow.mult);
+
+          // If extra marks scored points, undo those points from current player
+          const extraMarks = typeof lastThrow.extraMarksUsed === "number"
+            ? lastThrow.extraMarksUsed
+            : Math.max(0, (preMarks + lastThrow.mult) - 3);
+
+          if (extraMarks > 0) {
+            const pointsToRemove = lastThrow.base * extraMarks;
             // Check if there were open opponents when the throw was made
             const hasOpenOpponent = updatedPlayers.some((otherPlayer, idx) => 
               idx !== currentPlayerIndex && 
@@ -447,62 +477,36 @@ const Game = () => {
             if (hasOpenOpponent) {
               player.score -= pointsToRemove;
             }
-            
-            // Restore marks to pre-throw value
-            const preMarks = typeof lastThrow.preMarks === "number"
-              ? lastThrow.preMarks
-              : Math.max(0, currentMarks - lastThrow.mult);
-            player.cricketMarks[lastThrow.base] = preMarks;
-          } else {
-            // Restore marks to the exact pre-throw value when available
-            const preMarks = typeof lastThrow.preMarks === "number"
-              ? lastThrow.preMarks
-              : Math.max(0, currentMarks - lastThrow.mult);
-
-            // If extra marks scored points, undo those points from current player
-            const extraMarks = typeof lastThrow.extraMarksUsed === "number"
-              ? lastThrow.extraMarksUsed
-              : Math.max(0, (preMarks + lastThrow.mult) - 3);
-
-            if (extraMarks > 0) {
-              const pointsToRemove = lastThrow.base * extraMarks;
-              // Check if there were open opponents when the throw was made
-              const hasOpenOpponent = updatedPlayers.some((otherPlayer, idx) => 
-                idx !== currentPlayerIndex && 
-                otherPlayer.cricketMarks && 
-                (otherPlayer.cricketMarks[lastThrow.base] || 0) < 3
-              );
-              
-              if (hasOpenOpponent) {
-                player.score -= pointsToRemove;
-              }
-            }
-
-            player.cricketMarks[lastThrow.base] = preMarks;
           }
-          // Ajuster le MPR: retirer les marques de ce lancer
-          player.totalThrown = Math.max(0, (player.totalThrown || 0) - (lastThrow.marksCounted || 0));
-        }
 
-        setPlayers(updatedPlayers);
+          player.cricketMarks[lastThrow.base] = preMarks;
+        }
+        // Ajuster le MPR: retirer les marques de ce lancer
+        player.totalThrown = Math.max(0, (player.totalThrown || 0) - (lastThrow.marksCounted || 0));
       }
-      
-      setCurrentThrows(currentThrows.slice(0, -1));
-      setDartCount(dartCount - 1);
-      setMultiplier(1);
-    } else if (previousTurnState) {
-      // Revenir au tour précédent
-      setPlayers(previousTurnState.players);
-      setCurrentPlayerIndex(previousTurnState.playerIndex);
-      setCurrentThrows([]);
-      setDartCount(0);
-      setMultiplier(1);
-      setPreviousTurnState(null);
-      if (gameMode === "sudden-death") {
-        setRoundScores(new Map());
-      }
-      toast.info("Retour au tour précédent");
+
+      setPlayers(updatedPlayers);
     }
+    
+    setCurrentThrows(currentThrows.slice(0, -1));
+    setDartCount(dartCount - 1);
+    setMultiplier(1);
+  };
+
+  const undoPreviousTurn = () => {
+    if (!previousTurnState) return;
+    
+    // Revenir au tour précédent
+    setPlayers(previousTurnState.players);
+    setCurrentPlayerIndex(previousTurnState.playerIndex);
+    setCurrentThrows([]);
+    setDartCount(0);
+    setMultiplier(1);
+    setPreviousTurnState(null);
+    if (gameMode === "sudden-death") {
+      setRoundScores(new Map());
+    }
+    toast.info("Retour au tour précédent");
   };
 
   const getMarkSymbol = (marks: number, number: number) => {
@@ -748,8 +752,8 @@ const Game = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={undo} 
-                disabled={!previousTurnState || dartCount > 0}
+                onClick={undoPreviousTurn} 
+                disabled={!previousTurnState}
                 className="disabled:opacity-30 h-12 w-12 p-0 flex-shrink-0"
                 title="Revenir au joueur précédent"
               >
@@ -780,7 +784,7 @@ const Game = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={undo} 
+                onClick={undoLastThrow} 
                 disabled={dartCount === 0}
                 className="disabled:opacity-30 h-12 w-12 p-0 flex-shrink-0"
                 title="Annuler le dernier lancer"
@@ -1048,7 +1052,17 @@ const Game = () => {
           <div className="text-center text-sm sm:text-base font-bold mb-3">
             <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
           </div>
-          <div className="flex justify-center items-center gap-2 sm:gap-3">
+          <div className="flex justify-center items-center gap-1 sm:gap-2">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={undoPreviousTurn} 
+              disabled={!previousTurnState}
+              className="disabled:opacity-30 h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0"
+              title="Revenir au joueur précédent"
+            >
+              <ArrowLeft className="w-10 h-10 sm:w-12 sm:h-12" />
+            </Button>
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -1072,11 +1086,12 @@ const Game = () => {
             <Button 
               variant="ghost" 
               size="lg" 
-              onClick={undo} 
-              disabled={dartCount === 0 && !previousTurnState}
-              className="disabled:opacity-30 ml-1 h-16 w-16 sm:h-20 sm:w-20"
+              onClick={undoLastThrow} 
+              disabled={dartCount === 0}
+              className="disabled:opacity-30 h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0"
+              title="Annuler le dernier lancer"
             >
-              <Undo2 className="w-14 h-14 sm:w-16 sm:h-16" />
+              <Undo2 className="w-10 h-10 sm:w-12 sm:h-12" />
             </Button>
           </div>
         </Card>
