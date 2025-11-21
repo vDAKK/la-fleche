@@ -1048,50 +1048,53 @@ const Game = () => {
         </ScrollArea>
 
         {/* Current turn */}
-        <Card className="p-4 sm:p-5 glass-card border-primary/20">
-          <div className="text-center text-sm sm:text-base font-bold mb-3">
+        <Card className="p-3 glass-card border-primary/20">
+          <div className="text-center text-sm font-bold mb-2">
             <span className="text-primary">{currentPlayer.name}</span> - Lancer {dartCount + 1}/3
           </div>
-          <div className="flex justify-center items-center gap-1 sm:gap-2">
+          
+          <div className="flex items-center justify-between gap-2 w-full">
             <Button 
               variant="outline" 
-              size="lg" 
+              size="sm" 
               onClick={undoPreviousTurn} 
               disabled={!previousTurnState}
-              className="disabled:opacity-30 h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0"
+              className="disabled:opacity-30 h-12 w-12 p-0 flex-shrink-0"
               title="Revenir au joueur précédent"
             >
-              <ArrowLeft className="w-10 h-10 sm:w-12 sm:h-12" />
+              <ArrowLeft className="w-6 h-6" />
             </Button>
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 flex items-center justify-center text-lg sm:text-xl font-bold transition-all ${
-                  i < dartCount
-                    ? "bg-gradient-to-br from-secondary to-secondary/80 border-secondary shadow-lg"
-                    : i === dartCount
-                    ? "bg-primary/20 border-primary animate-pulse"
-                    : "bg-muted/30 border-muted"
-                }`}
-              >
-                {currentThrows[i] 
-                  ? currentThrows[i].mult === 2 
-                    ? `D${currentThrows[i].base}` 
-                    : currentThrows[i].mult === 3 
-                    ? `T${currentThrows[i].base}` 
-                    : currentThrows[i].base 
-                  : ""}
-              </div>
-            ))}
+            
+            <div className="flex gap-1.5 flex-1 justify-center">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`w-12 h-12 rounded border-2 flex items-center justify-center text-sm font-bold transition-all ${
+                    i < dartCount
+                      ? "bg-primary/20 border-primary text-primary"
+                      : "bg-muted/30 border-muted text-muted-foreground"
+                  }`}
+                >
+                  {currentThrows[i] 
+                    ? currentThrows[i].mult === 2 
+                      ? `D${currentThrows[i].base}` 
+                      : currentThrows[i].mult === 3 
+                      ? `T${currentThrows[i].base}` 
+                      : currentThrows[i].base 
+                    : ""}
+                </div>
+              ))}
+            </div>
+            
             <Button 
               variant="ghost" 
-              size="lg" 
+              size="sm" 
               onClick={undoLastThrow} 
               disabled={dartCount === 0}
-              className="disabled:opacity-30 h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0"
+              className="disabled:opacity-30 h-12 w-12 p-0 flex-shrink-0"
               title="Annuler le dernier lancer"
             >
-              <Undo2 className="w-10 h-10 sm:w-12 sm:h-12" />
+              <Undo2 className="w-6 h-6" />
             </Button>
           </div>
         </Card>
