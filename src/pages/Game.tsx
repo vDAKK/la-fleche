@@ -928,6 +928,11 @@ const Game = () => {
                 && turnScore === lowestTurnScore 
                 && roundScores.size > 0;
               
+              // Calculer la moyenne pour mort subite
+              const average = gameMode === "sudden-death" && (player.turnsPlayed || 0) > 0
+                ? (player.totalThrown || 0) / (player.turnsPlayed || 1)
+                : 0;
+              
               return (
               <Card
                 key={player.id}
@@ -935,16 +940,26 @@ const Game = () => {
                   idx === currentPlayerIndex
                     ? "border-2 border-primary bg-primary/20 shadow-lg glow-primary scale-[1.02]"
                     : isInDanger
-                    ? "border-2 border-destructive bg-destructive/10 shadow-lg shadow-destructive/50"
+                    ? "border-2 border-destructive bg-destructive/10 shadow-destructive/50"
                     : "border border-border/50 opacity-70"
                 }`}
               >
-                {/* Nom et historique toujours visibles */}
-                <div className="flex items-center justify-between mb-1">
-                  <div className="font-bold text-xs sm:text-sm truncate">{player.name}</div>
+                {/* Nom, vies et historique */}
+                <div className="flex items-center justify-between mb-1 gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="font-bold text-xs sm:text-sm truncate">{player.name}</div>
+                    {/* Lives */}
+                    {gameMode === "sudden-death" && (
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                        {Array.from({ length: player.lives || 0 }).map((_, i) => (
+                          <span key={i} className="text-sm">❤️</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   {/* Turn History */}
                   {player.turnHistory && player.turnHistory.length > 0 && (
-                    <div className="flex gap-1 text-xs font-medium text-foreground/80">
+                    <div className="flex gap-1 text-xs font-medium text-foreground/80 flex-shrink-0">
                       {player.turnHistory.slice(-1).map((turn, turnIdx) => (
                         <div key={turnIdx} className="flex gap-0.5">
                           {turn.map((dart, dartIdx) => (
@@ -958,20 +973,41 @@ const Game = () => {
                   )}
                 </div>
                 
-                 {/* Score et MPR côte à côte */}
-                <div className="flex items-end justify-between">
-                  <div className="text-3xl sm:text-4xl font-bold text-primary leading-none">
-                    {gameMode === "sudden-death" ? turnScore : player.score}
-                  </div>
-                  
-                  {/* MPR en bas à droite */}
-                  {gameMode === "cricket" && player.cricketMarks && (player.turnsPlayed || 0) > 0 && (
-                    <div className="flex items-center gap-1 text-xs text-accent font-bold">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>{(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / (player.turnsPlayed || 1)).toFixed(1)}</span>
+                {/* Score principal et statistiques */}
+                {gameMode === "sudden-death" ? (
+                  <div className="space-y-1">
+                    {/* Score total et moyenne */}
+                    <div className="flex items-end justify-between">
+                      <div className="text-3xl sm:text-4xl font-bold text-primary leading-none">
+                        {player.score}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-accent font-bold">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>{average > 0 ? average.toFixed(1) : "0.0"}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
+                    {/* Score du tour en cours */}
+                    {turnScore !== null && roundScores.has(player.id) && (
+                      <div className="text-xs text-muted-foreground">
+                        Tour: <span className="font-bold text-foreground">{turnScore} pts</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-end justify-between">
+                    <div className="text-3xl sm:text-4xl font-bold text-primary leading-none">
+                      {player.score}
+                    </div>
+                    
+                    {/* MPR en bas à droite */}
+                    {gameMode === "cricket" && player.cricketMarks && (player.turnsPlayed || 0) > 0 && (
+                      <div className="flex items-center gap-1 text-xs text-accent font-bold">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>{(Object.values(player.cricketMarks).reduce((sum, marks) => sum + marks, 0) / (player.turnsPlayed || 1)).toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Cricket marks */}
                 {gameMode === "cricket" && player.cricketMarks && (
@@ -1000,15 +1036,6 @@ const Game = () => {
                       })}
                     </div>
                   </ScrollArea>
-                )}
-
-                {/* Lives */}
-                {gameMode === "sudden-death" && (
-                  <div className="mt-2 text-sm flex items-center gap-1">
-                    {Array.from({ length: player.lives || 0 }).map((_, i) => (
-                      <span key={i} className="text-lg">❤️</span>
-                    ))}
-                  </div>
                 )}
               </Card>
             );
