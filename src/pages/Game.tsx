@@ -491,11 +491,11 @@ const Game = () => {
       setDartCount(dartCount - 1);
       setMultiplier(1);
     } else if (previousTurnState) {
-      // Revenir au tour précédent avec les lancers affichés (sans annuler le score en cricket)
+      // Revenir au tour précédent
       setPlayers(previousTurnState.players);
       setCurrentPlayerIndex(previousTurnState.playerIndex);
-      setCurrentThrows(previousTurnState.throws || []);
-      setDartCount(previousTurnState.throws ? previousTurnState.throws.length : 0);
+      setCurrentThrows([]);
+      setDartCount(0);
       setMultiplier(1);
       setPreviousTurnState(null);
       if (gameMode === "sudden-death") {
